@@ -1,0 +1,43 @@
+package com.intelligence.business.product.dao;
+
+import java.util.HashMap;
+import java.util.List;
+
+import com.intelligence.business.product.entity.ProductType;
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductTypeDao {
+
+	/**
+	 * 新增商品品类
+	 * @param productType
+	 * @return
+	 * @throws PowerException
+	 */
+	Integer addProductType(HashMap<String, Object> productType) throws PowerException;
+
+	/**
+	 * 根据品类id查询品类编号
+	 * @param id
+	 * @return
+	 */
+	Integer getProductTypeId(int id) throws PowerException;
+
+	/**
+	 * 根据品类编号和查询条件查询指定品类下级品类合集
+	 * @param parseInt,searchCondition
+	 * @param searchCondition
+	 */
+	List<ProductType> getProductTypeChild(String startId, String endId) throws PowerException;
+	
+	/**
+	 * 获取指定品类编号的分类信息
+	 * 
+	 * @param productType
+	 * @return ProductType
+	 */
+	public ProductType getProductType(int productType) throws PowerException;
+
+	
+	
+}

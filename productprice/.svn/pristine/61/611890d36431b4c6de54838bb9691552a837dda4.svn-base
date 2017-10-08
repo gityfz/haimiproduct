@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.ProductMapper">
+
+	<resultMap id="selectProductMap" type="java.util.HashMap">
+		<!-- 商品表 -->
+		<!--id 主键ID -->
+		<id column="id" property="productId" jdbcType="INTEGER" />
+		<!-- product_type 商品品类 -->
+		<result column="product_type " property="productType"
+			jdbcType="INTEGER" />
+		<!-- product_name 商品名称 -->
+		<result column="product_name" property="productName" jdbcType="VARCHAR" />
+		<!-- product_master_id 主商品id -->
+		<result column="product_master_id" property="productMasterId" jdbcType="VARCHAR" />
+		<!-- product_name_en 商品英文名称 -->
+		<result column="product_name_en" property="productNameEn"
+			jdbcType="VARCHAR" />
+		<!-- barcode 商品条码 -->
+		<result column="barcode" property="barcode" jdbcType="VARCHAR" />
+		<!-- unit 商品单位 -->
+		<result column="unit" property="unit" jdbcType="VARCHAR" />
+		<!-- head_img 商品头图 -->
+		<result column="head_img" property="headImg" jdbcType="VARCHAR" />
+		<!-- supplier_id 供应商ID -->
+		<result column="supplier_id" property="supplierId" jdbcType="INTEGER" />
+		<!-- country_id 国家ID -->
+		<result column="country_id" property="countryId" jdbcType="INTEGER" />
+		<!-- brand_id 品牌ID -->
+		<result column="brand_id" property="brandId" jdbcType="INTEGER" />
+		<!-- weight 重量 -->
+		<result column="weight" property="weight" jdbcType="INTEGER" />
+		<!-- check_flag 是否审核 1 已审核 0 未审核 -->
+		<result column="check_flag" property="checkFlag" jdbcType="INTEGER" />
+		<!-- is_top 是否置顶 1 置顶 0 不置顶 -->
+		<result column="is_top" property="isTop" jdbcType="INTEGER" />
+		<!-- set_time 置顶时间 -->
+		<result column="set_time" property="setTime" jdbcType="DATE" />
+		<!-- master_flag 主从标记 1 主 0 从 -->
+		<result column="master_flag" property="masterFlag" jdbcType="INTEGER" />
+		<!-- detail_id 详情标记 -->
+		<result column="detail_id" property="detailId" jdbcType="INTEGER" />
+		<!-- sell_num 销售数量 -->
+		<result column="sell_num" property="sellNum" jdbcType="INTEGER" />
+		<!-- sell_limit 销售限制 -->
+		<result column="sell_limit" property="sellLimit" jdbcType="INTEGER" />
+		<!-- uni_purchase_price 统一采购价 -->
+		<result column="uni_purchase_price" property="uniPurchasePrice"
+			jdbcType="INTEGER" />
+		<!-- uni_refer_price 统一关联价 -->
+		<result column="uni_refer_price" property="uniReferPrice"
+			jdbcType="INTEGER" />
+		<!-- rate_bal 百分比差 -->
+		<result column="rate_bal" property="rateBal" jdbcType="INTEGER" />
+		<!-- price_bal 价格差 -->
+		<result column="price_bal" property="priceBal" jdbcType="INTEGER" />
+		<!-- group_flag 组合标记 1 有组合 0 无组合 -->
+		<result column="group_flag" property="groupFlag" jdbcType="INTEGER" />
+		<!-- del_flag 删除标记 1 已删除 0 未删除 -->
+		<result column="del_flag" property="delFlag" jdbcType="DATE" />
+		<!-- add_time -->
+		<result column="add_time" property="addTime" jdbcType="DATE" />
+		<!-- update_time -->
+		<result column="update_time" property="updateTime" jdbcType="VARCHAR" />
+		<!-- 品牌表 -->
+		<collection property="brand" javaType="java.util.HashMap"
+			ofType="java.util.HashMap">
+			<!--brand_name 品牌名称 -->
+			<result column="brand_name" property="brandName" jdbcType="VARCHAR" />
+			<!--brand_name_en 品牌英文名称 -->
+			<result column="brand_name_en" property="brandNameEn"
+				jdbcType="VARCHAR" />
+			<!--brand_first_letter 品牌首字母 -->
+			<result column="brand_first_letter" property="brandFirstLetter"
+				jdbcType="VARCHAR" />
+			<!--brand_index 品牌拼音索引 -->
+			<result column="brand_index" property="brandIndex" jdbcType="VARCHAR" />
+			<!--brand_logo 品牌logo P-1,M-2,T-1 -->
+			<result column="brand_logo" property="brandLogo" jdbcType="INTEGER" />
+			<!--country_id 国家ID -->
+			<result column="country_id" property="countryId" jdbcType="INTEGER" />
+			<!--detail_id 详情ID -->
+			<result column="detail_id" property="detailId" jdbcType="INTEGER" />
+			<!--brand_site 品牌网站 -->
+			<result column="brand_site" property="brandSite" jdbcType="VARCHAR" />
+		</collection>
+
+		<!--category 分类表 -->
+		<collection property="category" javaType="java.util.HashMap"
+			ofType="java.util.HashMap">
+			<!--category_id 分类编号 -->
+			<result column="category_id" property="categoryId" jdbcType="INTEGER" />
+			<!--category_name 分类编号 -->
+			<result column="category_name" property="categoryName"
+				jdbcType="VARCHAR" />
+			<!--category_index 分类索引 -->
+			<result column="category_index" property="categoryIndex"
+				jdbcType="INTEGER" />
+			<!--category_level 分类层级 0 根级 1 1级 2 2级 3 3级 -->
+			<result column="category_level" property="categoryLevel"
+				jdbcType="INTEGER" />
+		</collection>
+
+		<!--product_type 商品品类表 -->
+		<collection property="product_type" javaType="java.util.HashMap"
+			ofType="java.util.HashMap">
+			<!--product_type 商品品类 -->
+			<result column="product_type" property="productType" jdbcType="INTEGER" />
+			<!--product_type_name 品类名称 -->
+			<result column="product_type_name" property="productTypeName"
+				jdbcType="VARCHAR" />
+			<!--product_type_level 品类层级 0 根级 1 1级 2 2级 3 3级 -->
+			<result column="product_type_level" property="productTypeLevel"
+				jdbcType="INTEGER" />
+		</collection>
+
+		<!--country 国家表 -->
+		<collection property="country" javaType="java.util.HashMap"
+			ofType="java.util.HashMap">
+			<!--country_id 国家ID -->
+			<result column="country_id" property="countryId" jdbcType="INTEGER" />
+			<!--weight_unit 重量单位 -->
+			<result column="weight_unit" property="weightUnit" jdbcType="VARCHAR" />
+			<!--price_unit 价格单位 ( -->
+			<result column="price_unit" property="priceUnit" jdbcType="VARCHAR" />
+			<!--logo 国旗图标 -->
+			<result column="logo" property="logo" jdbcType="VARCHAR" />
+		</collection>
+
+		<!--detail 详情表 -->
+		<collection property="detail" javaType="java.util.HashMap"
+			ofType="java.util.HashMap">
+			<!--detail 详情 -->
+			<result column="detail" property="detail" jdbcType="INTEGER" />
+		</collection>
+
+		<!--supplier 供应商表 -->
+		<collection property="supplier" javaType="java.util.HashMap"
+			ofType="java.util.HashMap">
+			<!--supplier_name 供应商名称 -->
+			<result column="supplier_name" property="supplierName"
+				jdbcType="VARCHAR" />
+
+			<!--supplier_short_name 供应商简称 -->
+			<result column="supplier_short_name" property="supplierShortName"
+				jdbcType="VARCHAR" />
+
+			<!--supplier_type 供应商类型 -->
+			<result column="supplier_type" property="supplierType"
+				jdbcType="VARCHAR" />
+
+			<!--contact_phone 联系人电话 -->
+			<result column="contact_phone" property="contactPhone"
+				jdbcType="VARCHAR" />
+
+			<!--contact_email 联系人邮件 -->
+			<result column="contact_email" property="contactEmail"
+				jdbcType="VARCHAR" />
+
+			<!--contact_fax 联系人传真 -->
+			<result column="contact_fax" property="contactFax" jdbcType="VARCHAR" />
+
+			<!--account_bank 开户行 -->
+			<result column="account_bank" property="accountBank" jdbcType="VARCHAR" />
+
+			<!--account_name 开户名 -->
+			<result column="account_name" property="accountName" jdbcType="VARCHAR" />
+
+			<!--account_card_no 开户卡号 -->
+			<result column="account_card_no" property="accountCardNo"
+				jdbcType="VARCHAR" />
+
+			<!--settle_type 结算方式 -->
+			<result column="settle_type" property="settleType" jdbcType="VARCHAR" />
+
+			<!--supplier_account 供应商账户名称 -->
+			<result column="supplier_account" property="supplierAccount"
+				jdbcType="VARCHAR" />
+
+			<!--supplier_pass 供应商账户密码 -->
+			<result column="supplier_pass" property="supplierPass"
+				jdbcType="VARCHAR" />
+
+			<!--supplier_address 供应商地址 -->
+			<result column="supplier_address" property="supplierAddress"
+				jdbcType="VARCHAR" />
+
+			<!--login_time 上次登录时间 -->
+			<result column="login_time" property="loginTime" jdbcType="DATE" />
+
+			<!--login_ip 登录IP -->
+			<result column="login_ip" property="loginIp" jdbcType="VARCHAR" />
+		</collection>
+	</resultMap>
+
+	<!-- <sql id="Base_Column_List" > id, agency_id, error_code, url, response_time, 
+		add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, 
+		order_id </sql> -->
+
+	<!-- <include refid="Base_Column_List" /> -->
+
+	<!-- 新增产品 -->
+	<insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId"
+		parameterType="java.util.HashMap">
+		INSERT INTO product
+		(product_type,
+		product_name,
+		<if test="productNameEn != null">
+			product_name_en,
+		</if>
+		<if test="barcode != null">
+			barcode,
+		</if>
+		unit,
+		head_img,
+		supplier_id,
+		country_id,
+		brand_id,
+		weight,
+		check_flag,
+		is_top,
+		<if test="setTime != null">
+			set_time,
+		</if>
+		master_flag,
+		detail_id,
+		sell_limit,
+		uni_purchase_price,
+		uni_refer_price,
+		<if test="rateBal != null">
+			rate_bal,
+		</if>
+		<if test="priceBal != null">
+			price_bal,
+		</if>
+		group_flag,
+		add_time)
+		VALUES (
+		#{productType},
+		#{productName},
+		<if test="productNameEn != null">
+			#{productNameEn},
+		</if>
+		<if test="barcode != null">
+			#{barcode},
+		</if>
+		#{unit},
+		#{headImg},
+		#{supplierId},
+		#{countryId},
+		#{brandId},
+		#{weight},
+		#{checkFlag},
+		#{isTop},
+		<if test="setTime != null">
+			#{setTime},
+		</if>
+		#{masterFlag},
+		#{detailId},
+		#{sellLimit},
+		#{uniPurchasePrice},
+		#{uniReferPrice},
+		<if test="rateBal != null">
+			#{rateBal},
+		</if>
+		<if test="priceBal != null">
+			#{priceBal},
+		</if>
+		#{groupFlag},
+		#{addTime});
+	</insert>
+	
+	
+	<!-- 跨品类复制商品 -->
+	<insert id="productCopy" useGeneratedKeys="true" keyProperty="productId"
+		parameterType="java.util.HashMap">
+		INSERT INTO product
+		(id,
+		product_master_id,
+		<if test="detailId != null">
+		detail_id,
+		</if>
+		product_type,
+		product_name,
+		product_name_en,
+		barcode,
+		unit,
+		head_img,
+		supplier_id,
+		country_id,
+		brand_id,
+		weight,
+		master_flag,
+		sell_limit,
+		uni_purchase_price,
+		uni_refer_price,
+		add_time)
+		VALUES (
+		(SELECT MAX(a.id+1) FROM product a),
+		<if test="masterProductId == null">
+		(SELECT MAX(a.id+1) FROM product a),
+		</if>
+		<if test="masterProductId != null">
+		#{masterProductId},
+		</if>
+		<if test="detailId != null">
+		#{detailId},
+		</if>
+		#{productType},
+		#{productName},
+		#{productNameEn},
+		#{barcode},
+		#{unit},
+		#{headImg},
+		#{supplierId},
+		#{countryId},
+		#{brandId},
+		#{weight},
+		#{masterFlag},
+		#{sellLimit},
+		#{uniPurchasePrice},
+		#{uniReferPrice},
+		#{addTime});
+	</insert>
+
+	<!-- 新增明细 -->
+	<insert id="insertDetail" useGeneratedKeys="true" keyProperty="detailId"
+		parameterType="java.util.HashMap">
+		INSERT INTO detail (detail,add_time) VALUES
+		(#{detail},#{addTime});
+	</insert>
+	
+	<!-- 更新明细 -->
+	<update id="updateDetail" parameterType="java.util.HashMap">
+		UPDATE 
+		detail
+		set 
+		detail = #{detail}
+		WHERE
+		id = #{detailId}
+		;
+	</update>
+
+	<!-- 商品详情查看 -->
+	<select id="selectProduct" resultMap="selectProductMap">
+		<!-- -->
+		SELECT p.* ,c.*,s.*,d.* ,b.*, ca.*, pt.* from product p
+		<!--查询商品国家信息 -->
+		LEFT JOIN country c on p.country_id=c.country_id
+		<!--查询商品供应商信息 -->
+		LEFT JOIN supplier s on p.supplier_id=s.id
+		<!--查询商品详情信息 -->
+		LEFT JOIN detail d on p.detail_id= d.id
+		<!--查询商品品牌信息 -->
+		LEFT JOIN brand b on p.brand_id =b.id
+		<!--查询商品品类信息 -->
+		LEFT JOIN product_type pt on p.product_type= pt.product_type
+		<!--查询商品分类信息 -->
+		LEFT JOIN product_category pc on p.id = pc.product_id
+		LEFT JOIN
+		category ca on pc.category_id = ca.category_id
+		<!--查询条件 -->
+		where p.id=#{productId}
+		and p.del_flag=0  <!--商品信息删除标志 -->
+		and c.del_flag=0  <!--国家信息删除标志 -->
+		and s.del_flag=0  <!--供应商信息删除标志 -->
+		and d.del_flag=0  <!--详情信息删除标志 -->
+		and b.del_flag=0  <!--品牌信息删除标志 -->
+		and pt.del_flag=0 <!--品类信息删除标志 -->
+		and pc.del_flag=0 <!--商品分类信息删除标志 -->
+		and ca.del_flag=0 <!--分类信息删除标志 -->
+	</select>
+
+	<!-- 新增商品分类映射关系记录 -->
+	<insert id="insertProductCategory" useGeneratedKeys="true" keyProperty="id"
+		parameterType="java.util.HashMap">
+		INSERT INTO product_category (product_id,category_id,add_time) VALUES
+		<foreach collection="categoryList" item="categoryId" index="index" open="" close=""
+			separator=",">
+			(
+			#{productId},
+			#{categoryId},
+			#{addTime}
+			)
+		</foreach>
+	</insert>
+	
+	
+	
+	<!-- 查询商品对应分类映射关系记录 -->
+	<select id="selectProductCategory" resultType="java.lang.Integer">
+		select p.category_id from product_category p 
+		where
+		p.product_id = #{productId}
+		and 
+		p.del_flag = 0
+	</select>
+	
+	<!-- 删除商品对应分类映射关系记录 -->
+	<update id="deleteProductCategory" parameterType="java.util.HashMap">
+		update product_category p 
+		set
+		p.del_flag = 1
+		where
+		<foreach collection="categoryList" item="categoryId" index="index" open="" close=""
+			separator="OR">
+		p.category_id = #{categoryId}
+		</foreach>
+		and
+		p.del_flag = 0
+	</update>
+
+
+	
+  
+	
+	
+	
+	 <!-- 商品列表自定义resultMap -->
+	 <resultMap id="queryByConditionMap" type="java.util.HashMap">  
+	       <id column="id" property="productId" jdbcType="INTEGER"/>  
+	       <result column="product_type" property="productType" jdbcType="VARCHAR"/>  
+	       <result column="product_name" property="productName" jdbcType="VARCHAR"/>  
+	       <result column="product_name" property="productName" jdbcType="VARCHAR"/>  
+	       <result column="product_name_en" property="productNameEn" jdbcType="VARCHAR"/>  
+	       <result column="county_id" property="countyId" jdbcType="INTEGER"/>  
+	       <result column="supplier_id" property="supplierId" jdbcType="INTEGER"/>  
+	       <result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+	       <result column="check_flag" property="checkFlag" jdbcType="INTEGER"/>
+	       <result column="is_top" property="isTop" jdbcType="INTEGER"/>
+	       <result column="set_time" property="setTime" jdbcType="DATE"/>
+	       <result column="master_flag" property="masterFlag" jdbcType="INTEGER"/>
+	       <result column="detail_id" property="detailId" jdbcType="INTEGER"/>
+	       <result column="sell_num" property="sellNum" jdbcType="INTEGER"/>
+	       <result column="sell_limit" property="sellLimit" jdbcType="INTEGER"/>
+	       <result column="uni_purchase_price" property="uniPurchasePrice" jdbcType="DECIMAL"/>
+	       <result column="uni_refer_price" property="uniReferPrice" jdbcType="DECIMAL"/>
+	       <result column="rate_bal" property="rateBal" jdbcType="INTEGER"/>
+	       <result column="price_bal" property="priceBal" jdbcType="DECIMAL"/>
+	       <result column="group_flag" property="groupFlag" jdbcType="INTEGER"/>
+	       <result column="del_flag" property="delFlag" jdbcType="INTEGER"/>
+	       <result column="add_time" property="addTime" jdbcType="DATE"/>
+	       <result column="update_time" property="updateTime" jdbcType="DATE"/>
+	   </resultMap>  
+	
+	
+	
+	<!-- 根据条件查询商品列表 -->
+	<select id="queryByCondition"  resultMap="queryByConditionMap" parameterType="java.util.HashMap">   
+    	SELECT p.* from product p 
+    	<if test="depotId != null">
+    	LEFT JOIN product_depot d on p.id = d.product_id 
+    	</if>
+    	<if test="categoryName != null">
+    	LEFT JOIN product_category c on p.id = c.product_id
+    	LEFT JOIN category f on f.category_id = c.category_id  
+    	</if>
+    	<if test="productTypeName != null">
+    	LEFT JOIN product_type t on p.product_type = t.product_type 
+    	</if>
+    	<if test="brandName != null">
+    	LEFT JOIN brand b on p.brand_id = b.id 
+    	</if>
+    	WHERE 1=1
+    	<if test="productName != null">
+    	and  p.product_name like  CONCAT(CONCAT('%', #{productName}), '%')
+    	</if>
+    	<if test="productNameEn != null">
+    	and  p.product_name_en like CONCAT(CONCAT('%', #{productNameEn}), '%')
+    	</if>
+    	<if test="countyId != null">
+    	and  p.country_id =  #{countyId}
+    	</if>
+    	<if test="brandName != null">
+    	and  b.brand_name =  #{brandName}
+    	and b.del_flag = 0 
+    	</if>
+    	<if test="depotId != null">
+    	and  d.depot_id =  #{depotId}
+    	and  d.del_flag = 0
+    	</if>
+    	<if test="categoryName != null">
+    	and  f.category_name =  #{categoryName}
+    	and  c.del_flag = 0
+    	and  f.del_flag = 0
+    	</if>
+    	<if test="productTypeName != null">
+    	and  t.product_type_name =  #{productTypeName}
+    	and  t.del_flag = 0
+    	</if>
+    	<if test="checkFlag != null">
+    	and  p.check_flag =  #{checkFlag}
+    	</if>
+    	and  p.del_flag = 0
+    	LIMIT #{start},#{limit}
+	</select>
+	
+  
+</mapper>

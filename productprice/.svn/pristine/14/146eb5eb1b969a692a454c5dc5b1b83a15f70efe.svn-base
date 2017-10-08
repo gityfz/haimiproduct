@@ -1,0 +1,28 @@
+package com.intelligence.business.product.dao;
+
+import java.util.HashMap;
+
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductDao {
+
+	/**
+	 * 新增一条商品
+	 * 
+	 * 
+	 * @param product
+	 * @return
+	 */
+	public Integer addProduct(HashMap<String, Object> product);
+	
+	/**
+	 * 新增一条详情
+	 * 
+	 * 
+	 * @param detail
+	 * @return
+	 * @throws PowerException 
+	 */
+	public Integer addDetail(HashMap<String, Object> detail) throws PowerException;
+	
+}

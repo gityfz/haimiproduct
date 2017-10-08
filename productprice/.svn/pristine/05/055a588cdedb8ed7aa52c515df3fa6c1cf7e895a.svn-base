@@ -1,0 +1,17 @@
+package com.intelligence.business.product.dao;
+
+import java.util.HashMap;
+
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductTypeDao {
+
+	/**
+	 * 新增商品品类
+	 * @param productType
+	 * @return
+	 * @throws PowerException
+	 */
+	Integer addProductType(HashMap<String, Object> productType) throws PowerException;
+
+}

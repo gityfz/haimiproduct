@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.SupplierMapper">
+	<!-- 新增产品 -->
+	<insert id="insertsupplier" useGeneratedKeys="true" keyProperty="supplierId"
+		parameterType="java.util.HashMap">
+		INSERT INTO supplier
+		(supplier_name,
+		supplier_short_name,
+		supplier_type,
+		contact_person,
+		contact_phone,
+		contact_email,
+		contact_fax,
+		account_bank,
+		account_name,
+		account_card_no,
+		settle_type,
+		supplier_account,
+		supplier_pass,
+		supplier_address,
+		add_time)
+		VALUES(
+		#{supplierName},
+		#{supplierShortName},
+		#{supplierType},
+		#{contactPerson},
+		#{contactPhone},
+		#{contactEmail},
+		#{contactFax},
+		#{accountBank},
+		#{accountName},
+		#{accountCardNo},
+		#{settleType},
+		#{supplierAccount},
+		#{supplierPass},
+		#{supplierAddress},
+		#{addTime}
+		);
+
+	</insert>
+</mapper>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.base.persistance.CodeNameMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  	<!-- 品牌名称键值对 -->
+  	<resultMap id="brandCodeName" type="com.intelligence.business.product.entity.ProductBrand">
+  		<result column="id" property="brandId"/>
+  		<result column="brand_name" property="brandName"/>
+  		<result column="brand_name_en" property="brandNameEn"/>
+	</resultMap>
+    <select id="queryBrandCodeName" resultMap="brandCodeName" parameterType="java.util.Map">
+    	<![CDATA[
+	    select 
+	    	id,
+	    	brand_name,
+	    	brand_name_en
+	    from 
+	    	brand
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	id >= #{start} 
+	    and 
+	    	id <= #{end} 
+	    ]]>
+	</select>
+	
+	<!-- 供应商名称键值对 -->
+  	<resultMap id="supplierCodeName" type="com.intelligence.business.product.entity.Supplier">
+  		<result column="id" property="supplierId"/>
+  		<result column="supplier_name" property="supplierName"/>
+	</resultMap>
+    <select id="querySupplierCodeName" resultMap="supplierCodeName" parameterType="java.util.Map">
+    	<![CDATA[
+	    select 
+	    	id,
+	    	supplier_name
+	    from 
+	    	supplier
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	id >= #{start} 
+	    and 
+	    	id <= #{end}
+	    ]]>
+	</select>
+	
+	<!-- 国家名称键值对 -->
+  	<resultMap id="countryCodeName" type="com.intelligence.business.product.entity.Country">
+  		<result column="country_id" property="countryId"/>
+  		<result column="weight_unit" property="weightUnit"/>
+  		<result column="price_unit" property="priceUnit"/>
+	</resultMap>
+    <select id="queryCountryCodeName" resultMap="countryCodeName" parameterType="java.util.Map">
+    	<![CDATA[
+	    select 
+	    	country_id,
+	    	weight_unit,
+	    	price_unit
+	    from 
+	    	country
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	id >= #{start} 
+	    and 
+	    	id <= #{end}
+	    ]]>
+	</select>
+	
+	<!-- 品类名称键值对 -->
+  	<resultMap id="productTypeCodeName" type="com.intelligence.business.product.entity.ProductType">
+  		<result column="id" property="productTypeId"/>
+  		<result column="product_type" property="productType"/>
+  		<result column="product_type_name" property="productTypeName"/>
+	</resultMap>
+    <select id="queryProductTypeCodeName" resultMap="productTypeCodeName" parameterType="java.util.Map">
+    	<![CDATA[
+	    select 
+	    	id,
+	    	product_type,
+	    	product_type_name
+	    from 
+	    	product_type
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	id >= #{start} 
+	    and 
+	    	id <= #{end}
+	    ]]>
+	</select>
+	
+	<!-- 分类名称键值对 -->
+  	<resultMap id="categoryCodeName" type="com.intelligence.business.product.entity.Category">
+  		<result column="category_id" property="categoryId"/>
+  		<result column="category_name" property="categoryName"/>
+	</resultMap>
+    <select id="queryCategoryCodeName" resultMap="categoryCodeName" parameterType="java.util.Map">
+    	<![CDATA[
+	    select 
+	    	category_id,
+	    	category_name
+	    from 
+	    	category
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	id >= #{start} 
+	    and 
+	    	id <= #{end}
+	    ]]>
+	</select>
+  
+</mapper>

@@ -1,0 +1,17 @@
+package com.intelligence.business.base.service;
+
+import com.intelligence.common.exception.PowerException;
+
+public interface ICodeNameService {
+
+	/**
+	 * 匹配品牌编码名称
+	 * 
+	 * 
+	 * @param brandId
+	 * @return
+	 * @throws PowerException
+	 */
+	public String mapBrandCodeName(Integer brandId) throws PowerException;
+	
+}

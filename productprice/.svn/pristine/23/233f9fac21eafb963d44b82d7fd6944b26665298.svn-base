@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.ProductBrandMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  	<!-- 新增产品 -->	
+  	<insert id="insertProductBrand" useGeneratedKeys="true" keyProperty="brandId" parameterType="java.util.HashMap">   
+    	INSERT INTO brand
+            (brand_name, 
+            <if test="brandNameEn != null"> 
+            brand_name_en, 
+            </if>
+            brand_first_letter,
+            brand_index,
+            brand_logo, 
+            country_id, 
+            detail_id, 
+            brand_site, 
+            add_time
+            )
+		VALUES (
+			#{brandName}, 
+			<if test="brandNameEn != null">
+			#{brandNameEn}, 
+			</if>
+			#{brandFirstLetter},
+			#{brandIndex}, 
+			#{brandLogo}, 
+			#{countryId}, 
+			#{detailId}, 
+			#{brandSite},
+        	#{addTime} 
+        	);   
+	</insert>
+	
+</mapper>

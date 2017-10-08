@@ -1,0 +1,56 @@
+package com.intelligence.business.product.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.intelligence.business.product.dao.IProductCategoryDao;
+import com.intelligence.business.product.dao.ISupplierDao;
+import com.intelligence.business.product.service.IProductCategoryService;
+
+/**
+ * @author 作者 E-mail:bzp
+ * @date 创建时间：2017年1月13日 下午4:47:23
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+@Service
+public class ProductCategoryServiceImpl implements IProductCategoryService {
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory
+			.getLogger(ProductCategoryServiceImpl.class);
+
+	/**
+	 * 商品分类DAO
+	 */
+	@Resource
+	private IProductCategoryDao iProductCategoryDao;
+
+	/**
+	 * 添加一条商品分类信息
+	 */
+	@Override
+	public Integer addProductCategory(HashMap<String, Object> params) {
+		// TODO Auto-generated method stub
+		try {
+			// 获取时间
+			Date currentTime = new Date();
+			params.put("addTime", currentTime);
+			return iProductCategoryDao.addProductCategory(params);
+		} catch (Exception e) {
+			// TODO: handle exception
+			throw e;
+		}
+
+	}
+
+}

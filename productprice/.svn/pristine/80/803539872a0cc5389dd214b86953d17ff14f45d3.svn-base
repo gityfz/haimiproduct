@@ -1,0 +1,503 @@
+package com.intelligence.business.product.controller;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.intelligence.business.base.service.ICodeNameService;
+import com.intelligence.business.product.entity.Product;
+import com.intelligence.business.product.service.IProductService;
+import com.intelligence.common.base.BaseController;
+import com.intelligence.common.cache.MemcacheTools;
+import com.intelligence.common.constant.StringCon;
+import com.intelligence.common.exception.ErrorCode;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+import com.intelligence.common.utils.NumUtils;
+
+@Controller
+@RequestMapping(value = "/product")
+public class ProductController extends BaseController {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory
+			.getLogger(ProductController.class);
+
+	/**
+	 * 商品业务层
+	 */
+	@Resource
+	private IProductService iProductService;
+
+	@Resource
+	private ICodeNameService iCodeNameService;
+	
+	@Resource
+	private MemcacheTools memcacheTools;
+	
+	@RequestMapping(value = "/test2", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public void test2(@RequestParam("fullName") String fullName) throws PowerException {
+//		List<Integer> testArr = new ArrayList<Integer>(500);
+//		StringBuffer sb = new StringBuffer();
+//		for (int i = 1000000; i < 1003000; i++) {
+////			testArr.add(i);
+//			sb.append(i);
+//		}
+//		long pre = System.currentTimeMillis();
+//		memcacheTools.setMemData("test", 60, sb);
+//		memcacheTools.getMemData("test");
+////		for(int i = 1; i < 10000; i++) {
+////			iCodeNameService.mapBrandCodeName(1);
+////			iCodeNameService.mapSupplierCodeName(2);
+////			iCodeNameService.mapCountryCodeName(1);
+////			iCodeNameService.mapProductTypeCodeName(1);
+////			iCodeNameService.mapCategoryCodeName(1);
+////		}
+//		this.sendResult(response, System.currentTimeMillis() - pre);
+	}
+	
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	public void test(HttpServletRequest request, HttpServletResponse response) throws PowerException {
+		List<Product> testArr = new ArrayList<Product>(100);
+		for (int i = 0; i < 100; i++) {
+			Product test = new Product();
+			test.setAddTime(new Date());
+			test.setBarcode("1111111111111111111111");
+			test.setBrandId(10000000);
+			test.setCheckFlag(1);
+			test.setCountryId(111111);
+			test.setDetailId(10000000);
+			test.setGroupFlag(1);
+			test.setHeadImg("1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+			test.setMasterFlag(1);
+			test.setProductId(100000000);
+			test.setProductName("11111121111211212111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+			test.setProductNameEn("11111121111211212111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+			test.setProductType("1000000000");
+			test.setSellLimit(10000000);
+			test.setSupplierId(10000000);
+			test.setUniPurchasePrice(new BigDecimal(10.1));
+			test.setUniReferPrice(new BigDecimal(10.1));
+			test.setUnit("12111");
+			test.setUpdateTime(new Date());
+			test.setWeight(new BigDecimal(10.1));	
+			testArr.add(test);
+		}
+		
+		
+//		StringBuffer sb = new StringBuffer();
+//		for (int i = 0; i < 100000; i++) {
+////			testArr.add(i);
+//			sb.append(i);
+//		}
+		memcacheTools.setMemData("test", 60, testArr);
+		long pre = System.currentTimeMillis();
+		memcacheTools.getMemData("test");
+//		for(int i = 1; i < 10000; i++) {
+//			iCodeNameService.mapBrandCodeName(1);
+//			iCodeNameService.mapSupplierCodeName(2);
+//			iCodeNameService.mapCountryCodeName(1);
+//			iCodeNameService.mapProductTypeCodeName(1);
+//			iCodeNameService.mapCategoryCodeName(1);
+//		}
+		this.sendResult(response, System.currentTimeMillis() - pre);
+	}
+	
+	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	public void addProduct(HttpServletRequest request, HttpServletResponse response) throws PowerException {
+		try {
+			// 获取参数
+			HashMap<String, Object> params = this.getMapParams(request,
+					response);
+			// 记录日志
+			logger.info(LogUtils.commonFormat("新增一条产品接口入参", params,
+					"/product/add", "post"));
+			// 校验入参
+			String paramMsg = StringCon.EMPTY_STR.getValue();
+			if (!NumUtils.isNum(params.get("productType"))) {
+				// 商品类型
+				paramMsg = "productType";
+			} else if (null == params.get("productName")) {
+				// 商品名称
+				paramMsg = "productName";
+			} else if (null == params.get("unit")) {
+				// 单位
+				paramMsg = "unit";
+			} else if (null == params.get("headImg")) {
+				// 头图
+				paramMsg = "headImg";
+			} else if (!NumUtils.isNum(params.get("supplierId"))) {
+				// 供应商ID
+				paramMsg = "supplierId";
+			} else if (!NumUtils.isNum(params.get("countryId"))) {
+				// 国家ID
+				paramMsg = "countryId";
+			} else if (!NumUtils.isNum(params.get("brandId"))) {
+				// 品牌ID
+				paramMsg = "brandId";
+			} else if (null != params.get("topRank") 
+						&& NumUtils.isNum(params.get("topRank"))) {
+				// 置顶权重
+				paramMsg = "topRank";
+			} else if (!NumUtils.isDouble(params.get("weight"))) {
+				// 重量
+				paramMsg = "weight";
+			} else if (0 != NumUtils.toNum(params.get("checkFlag"))
+					&& 1 != NumUtils.toNum(params.get("checkFlag"))) {
+				// 审核标记
+				paramMsg = "checkFlag";
+			} else if (0 != NumUtils.toNum(params.get("masterFlag"))
+					&& 1 != NumUtils.toNum(params.get("masterFlag"))) {
+				// 主从标记
+				paramMsg = "masterFlag";
+			} else if (!NumUtils.isNum(params.get("sellLimit"))) {
+				// 售卖限制
+				paramMsg = "sellLimit";
+			} else if (!NumUtils.isNum(params.get("uniPurchasePrice"))) {
+				// 统一采购价
+				paramMsg = "uniPurchasePrice";
+			} else if (!NumUtils.isNum(params.get("uniReferPrice"))) {
+				// 统一关联价
+				paramMsg = "uniReferPrice";
+			} else if (0 != NumUtils.toNum(params.get("groupFlag"))
+					&& 1 != NumUtils.toNum(params.get("groupFlag"))) {
+				// 组合标记
+				paramMsg = "groupFlag";
+			}
+
+			if (!StringCon.EMPTY_STR.getValue().equals(paramMsg)) {
+				// 返回结果，参数错误
+				this.sendResult(response, null, false, paramMsg
+						+ ErrorCode.PARAMS_FAIL.getErrorMessage(),
+						ErrorCode.PARAMS_FAIL.getErrorCode());
+			} else {
+				// 新增商品
+				Integer productId = iProductService.addProduct(params);
+				// 返回结果
+				this.sendResult(response, productId);
+			}
+
+		} catch (PowerException e) {
+			if (logger.isDebugEnabled()) {
+				e.printStackTrace();
+			}
+			this.sendResult(response, null, false, e.getErrorMsg(),
+					e.getErrorCode());
+		}
+	}
+
+	/**
+	 *  商品详情查看
+	 * @param productId
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping(value = "/select", method = RequestMethod.GET)
+	public void selectProduct(@RequestParam(value = "productId") int productId,
+			HttpServletRequest request, HttpServletResponse response) throws PowerException{
+		HashMap<String, Object> data = null;
+		try {
+			// 记录日志
+			logger.info(LogUtils.commonFormat("商品详情查看", productId,
+					"/product/select", "get"));
+			// 检验入参
+			String paramMsg = StringCon.EMPTY_STR.getValue();
+			System.out.println(NumUtils.isNum(productId));
+			if (NumUtils.isNum(productId)) {
+				// 商品id
+				paramMsg = Integer.toString(productId);
+			}
+			if (StringCon.EMPTY_STR.getValue().equals(paramMsg)) {
+				// 返回结果，参数错误
+				this.sendResult(response, null, false, paramMsg
+						+ ErrorCode.PARAMS_FAIL.getErrorMessage(),
+						ErrorCode.PARAMS_FAIL.getErrorCode());
+			} else {
+				// 查询商品
+				data = iProductService.selectProduct(productId);
+				// 返回结果
+				this.sendResult(response, data);
+
+			}
+		} catch (PowerException e) {
+			// TODO: handle exception
+			throw e;
+		}
+
+	}
+
+	
+	/**
+	 * 根据条件查询商品列表
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 * @throws PowerException
+	 * @author zhengyf
+	 */
+    @RequestMapping(value = "/querybycondition", method = RequestMethod.GET)
+    public void queryByCondition(HttpServletRequest request,
+	    HttpServletResponse response) throws IOException, PowerException {
+	try {
+	    // 获取参数
+	    HashMap<String, Object> params = this.getMapParams(request, response);
+	    // 记录日志
+	    logger.info(LogUtils.commonFormat("根据条件查询商品接口", params, "/product/querybycondition",
+	    	"get"));
+	    // 校验入参
+	    String paramMsg = StringCon.EMPTY_STR.getValue();
+		if (!NumUtils.isNum(params.get("start"))) {
+			// 分页起始
+			paramMsg = "start";
+		} else if (!NumUtils.isNum(params.get("limit"))) {
+			// 查询条数
+			paramMsg = "limit";
+		} else if (null == params.get("productName") && //商品名
+			   null == params.get("productNameEn") && //商品英文名称
+			   null == params.get("countyId") && // 国家ID 
+			   null == params.get("brandName") && //品牌名称
+		           null == params.get("depotId") && //仓库ID
+			   null == params.get("categoryName") && //分类名称
+			   null == params.get("productTypeName") && //品类名称
+			   null == params.get("checkFlag") //是否上线
+			   ){
+		        // 查询条件为空
+		        paramMsg = "emptyqueryconditon";
+		} 
+		
+		
+	    if (!StringCon.EMPTY_STR.getValue().equals(paramMsg)) {
+		this.sendResult(response, null, false, paramMsg	+ ErrorCode.PARAMS_FAIL.getErrorMessage(),ErrorCode.PARAMS_FAIL.getErrorCode());
+	    } else {
+		List<HashMap<String, Object>> productList = iProductService.queryByCondition(params);
+		// 返回结果
+		this.sendResult(response, productList);
+	    }
+	} catch (PowerException e) {
+	    if (logger.isDebugEnabled()) {
+		e.printStackTrace();
+	    }
+	    this.sendResult(response, null, false, e.getErrorMsg(),
+		    e.getErrorCode());
+	}
+
+    }
+    
+    @RequestMapping(value="/testCode",method = RequestMethod.GET)
+    public void testCodeNameService(HttpServletRequest request,
+	    HttpServletResponse response) throws IOException, PowerException {
+	
+    }
+    
+    /**
+     * 新增商品分类映射关系
+     * 
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws PowerException
+     * @author zhengyf
+     */
+    @RequestMapping(value = "/addProductCategory", method = RequestMethod.POST)
+    public void addProductCategory(HttpServletRequest request,
+	    HttpServletResponse response) throws PowerException {
+	try {
+	    // 获取参数
+	    HashMap<String, Object> params = this.getMapParams(request,
+		    response);
+	    // 记录日志
+	    logger.info(LogUtils.commonFormat("新增商品分类关系集合接口入参", params,
+		    "/product/addProductCategory", "post"));
+	    // 校验入参
+	    String paramMsg = StringCon.EMPTY_STR.getValue();
+	    if (!NumUtils.isNum(params.get("productId"))) {
+		// 商品Id
+		paramMsg = "productId";
+	    } else if (null == params.get("categoryList")) {
+		// 商品对应的分类编号列表(三级分类)
+		paramMsg = "categoryList";
+	    }
+
+	    if (!StringCon.EMPTY_STR.getValue().equals(paramMsg)) {
+		// 返回结果，参数错误
+		this.sendResult(response, null, false, paramMsg
+			+ ErrorCode.PARAMS_FAIL.getErrorMessage(),
+			ErrorCode.PARAMS_FAIL.getErrorCode());
+	    } else {
+		// 新增商品
+		Integer productId = iProductService.addProductCategory(params);
+		// 返回结果
+		this.sendResult(response, productId);
+	    }
+
+	} catch (PowerException e) {
+	    if (logger.isDebugEnabled()) {
+		e.printStackTrace();
+	    }
+	    this.sendResult(response, null, false, e.getErrorMsg(),
+		    e.getErrorCode());
+	}
+    }
+
+    /**
+     * 查询商品分类映射关系
+     * 
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws PowerException
+     * @author zhengyf
+     */
+    @RequestMapping(value = "/selectProductCategory", method = RequestMethod.GET)
+    public void selectProductCategory(HttpServletRequest request,
+	    HttpServletResponse response) throws PowerException {
+	try {
+	    // 获取参数
+	    Integer productId = null;
+	    if (request.getParameter("productId") != null) {
+		productId = Integer.valueOf(request.getParameter("productId"));
+	    }
+	    // 记录日志
+	    logger.info(LogUtils.commonFormat("查询商品分类关系集合接口入参", productId,
+		    "/product/selectProductCategory", "get"));
+
+	    if (productId == null || !NumUtils.isNum(productId)) {
+		// 返回结果，参数错误
+		this.sendResult(response, null, false, "productId"
+			+ ErrorCode.PARAMS_FAIL.getErrorMessage(),
+			ErrorCode.PARAMS_FAIL.getErrorCode());
+	    } else {
+		// 新增商品
+		List<Integer> categoryList = iProductService
+			.selectProductCategory(productId);
+		// 返回结果
+		this.sendResult(response, categoryList);
+	    }
+
+	} catch (PowerException e) {
+	    if (logger.isDebugEnabled()) {
+		e.printStackTrace();
+	    }
+	    this.sendResult(response, null, false, e.getErrorMsg(),
+		    e.getErrorCode());
+	}
+    }
+
+    /**
+     * 更新商品分类映射关系表
+     * 
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws PowerException
+     * @author zhengyf
+     */
+    @RequestMapping(value = "/updateProductCategory", method = RequestMethod.POST)
+    public void updateProductCategory(HttpServletRequest request,
+	    HttpServletResponse response) throws PowerException {
+	try {
+	    HashMap<String, Object> params = this.getMapParams(request,
+		    response);
+	    // 记录日志
+	    logger.info(LogUtils.commonFormat("更新商品分类关系集合接口入参", params,
+		    "/product/updateProductCategory", "post"));
+	    // 校验入参
+	    String paramMsg = StringCon.EMPTY_STR.getValue();
+	    if (!NumUtils.isNum(params.get("productId"))) {
+		// 商品Id
+		paramMsg = "productId";
+	    } else if (null == params.get("categoryList")) {
+		// 商品对应的分类编号列表(三级分类)
+		paramMsg = "categoryList";
+	    }
+
+	    if (!StringCon.EMPTY_STR.getValue().equals(paramMsg)) {
+		// 返回结果，参数错误
+		this.sendResult(response, null, false, paramMsg
+			+ ErrorCode.PARAMS_FAIL.getErrorMessage(),
+			ErrorCode.PARAMS_FAIL.getErrorCode());
+	    } else {
+		// 新增商品
+		iProductService.updateProductCategory(params);
+		// 返回结果
+		this.sendResult(response, "success");
+	    }
+
+	} catch (PowerException e) {
+	    if (logger.isDebugEnabled()) {
+		e.printStackTrace();
+	    }
+	    this.sendResult(response, null, false, e.getErrorMsg(),
+		    e.getErrorCode());
+	}
+    }
+
+    /**
+     * 删除商品分类映射关系表
+     * 
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws PowerException
+     * @author zhengyf
+     */
+    @RequestMapping(value = "/deleteProductCategory", method = RequestMethod.POST)
+    public void deleteProductCategory(HttpServletRequest request,
+	    HttpServletResponse response) throws PowerException {
+	try {
+	    HashMap<String, Object> params = this.getMapParams(request,
+		    response);
+	    // 记录日志
+	    logger.info(LogUtils.commonFormat("删除商品分类关系集合接口入参", params,
+		    "/product/updateProductCategory", "post"));
+	    // 校验入参
+	    String paramMsg = StringCon.EMPTY_STR.getValue();
+	    if (!NumUtils.isNum(params.get("productId"))) {
+		// 商品Id
+		paramMsg = "productId";
+	    } else if (null == params.get("categoryList")) {
+		// 商品对应的分类编号列表(三级分类)
+		paramMsg = "categoryList";
+	    }
+
+	    if (!StringCon.EMPTY_STR.getValue().equals(paramMsg)) {
+		// 返回结果，参数错误
+		this.sendResult(response, null, false, paramMsg
+			+ ErrorCode.PARAMS_FAIL.getErrorMessage(),
+			ErrorCode.PARAMS_FAIL.getErrorCode());
+	    } else {
+		// 新增商品
+		iProductService.deleteProductCategory(params);
+		// 返回结果
+		this.sendResult(response, "success");
+	    }
+
+	} catch (PowerException e) {
+	    if (logger.isDebugEnabled()) {
+		e.printStackTrace();
+	    }
+	    this.sendResult(response, null, false, e.getErrorMsg(),
+		    e.getErrorCode());
+	}
+    }
+    
+	
+	
+}

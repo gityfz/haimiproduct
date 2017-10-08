@@ -1,0 +1,18 @@
+package com.intelligence.business.base.persistance;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.intelligence.business.product.entity.ProductBrand;
+
+public interface CodeNameMapper {
+	
+	/**
+	 * 获取品牌编码名称
+	 * 
+	 * @param product
+	 */
+	ArrayList<ProductBrand> queryBrandCodeName(HashMap<String, Integer> param);
+	
+	
+}

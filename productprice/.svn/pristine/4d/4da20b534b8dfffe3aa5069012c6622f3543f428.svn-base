@@ -1,0 +1,35 @@
+package com.intelligence.business.price.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import com.intelligence.business.price.entity.ProductUserPrice;
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductUserPriceService {
+
+	/**
+	 * 获取商品用户价格
+	 * 
+	 * @param pageParam
+	 * @return
+	 */
+	public ArrayList<ProductUserPrice> queryProductUserPrice(HashMap<String, Object> pageParam) throws PowerException;
+	
+	/**
+	 * 获取商品用户价格数量
+	 * 
+	 * @return
+	 */
+	public Integer queryProductUserPriceCount() throws PowerException;
+	
+	/**
+	 * 获取用户价格配置
+	 * 
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<String, ArrayList<ProductUserPrice>> getUserPriceConfig(Integer userId) throws PowerException;
+	
+}

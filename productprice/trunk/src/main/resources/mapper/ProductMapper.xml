@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.ProductMapper">
+
+	<!-- <sql id="Base_Column_List" > id, agency_id, error_code, url, response_time, 
+		add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, 
+		order_id </sql> -->
+
+	<!-- <include refid="Base_Column_List" /> -->
+
+	<!-- 新增产品 -->
+	<insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId"
+		parameterType="java.util.HashMap">
+		INSERT INTO product
+		(product_type,
+		product_name,
+		<if test="productNameEn != null">
+			product_name_en,
+		</if>
+		<if test="barcode != null">
+			barcode,
+		</if>
+		unit,
+		head_img,
+		supplier_id,
+		country_id,
+		brand_id,
+		weight,
+		check_flag,
+		<if test="topRank != null">
+			top_rank,
+		</if>
+		master_flag,
+		detail_id,
+		sell_limit,
+		uni_purchase_price,
+		uni_refer_price,
+		group_flag,
+		add_time)
+		VALUES (
+		#{productType},
+		#{productName},
+		<if test="productNameEn != null">
+			#{productNameEn},
+		</if>
+		<if test="barcode != null">
+			#{barcode},
+		</if>
+		#{unit},
+		#{headImg},
+		#{supplierId},
+		#{countryId},
+		#{brandId},
+		#{weight},
+		#{checkFlag},
+		#{isTop},
+		<if test="topRank != null">
+			#{topRank},
+		</if>
+		#{masterFlag},
+		#{detailId},
+		#{sellLimit},
+		#{uniPurchasePrice},
+		#{uniReferPrice},
+		#{groupFlag},
+		#{addTime});
+	</insert>
+	
+	
+	<!-- 跨品类复制商品 -->
+	<insert id="productCopy" useGeneratedKeys="true" keyProperty="productId"
+		parameterType="java.util.HashMap">
+		INSERT INTO product
+		(id,
+		product_master_id,
+		<if test="detailId != null">
+		detail_id,
+		</if>
+		product_type,
+		product_name,
+		product_name_en,
+		barcode,
+		unit,
+		head_img,
+		supplier_id,
+		country_id,
+		brand_id,
+		weight,
+		master_flag,
+		sell_limit,
+		uni_purchase_price,
+		uni_refer_price,
+		add_time)
+		VALUES (
+		(SELECT MAX(a.id+1) FROM product a),
+		<if test="masterProductId == null">
+		(SELECT MAX(a.id+1) FROM product a),
+		</if>
+		<if test="masterProductId != null">
+		#{masterProductId},
+		</if>
+		<if test="detailId != null">
+		#{detailId},
+		</if>
+		#{productType},
+		#{productName},
+		#{productNameEn},
+		#{barcode},
+		#{unit},
+		#{headImg},
+		#{supplierId},
+		#{countryId},
+		#{brandId},
+		#{weight},
+		#{masterFlag},
+		#{sellLimit},
+		#{uniPurchasePrice},
+		#{uniReferPrice},
+		#{addTime});
+	</insert>
+
+	<!-- 新增明细 -->
+	<insert id="insertDetail" useGeneratedKeys="true" keyProperty="detailId"
+		parameterType="java.util.HashMap">
+		INSERT INTO detail (detail,add_time) VALUES
+		(#{detail},#{addTime});
+	</insert>
+	
+	<!-- 更新明细 -->
+	<update id="updateDetail" parameterType="java.util.HashMap">
+		UPDATE 
+		detail
+		set 
+		detail = #{detail}
+		WHERE
+		id = #{detailId}
+		;
+	</update>
+
+	<!-- 新增商品分类映射关系记录 -->
+	<insert id="insertProductCategory" useGeneratedKeys="true" keyProperty="id"
+		parameterType="java.util.HashMap">
+		INSERT INTO product_category (product_id,category_id,add_time) VALUES
+		<foreach collection="categoryList" item="categoryId" index="index" open="" close=""
+			separator=",">
+			(
+			#{productId},
+			#{categoryId},
+			#{addTime}
+			)
+		</foreach>
+	</insert>
+	
+	<!-- 查询商品对应分类映射关系记录 -->
+	<select id="selectProductCategory" resultType="java.lang.Integer">
+		select p.category_id from product_category p 
+		where
+		p.product_id = #{productId}
+		and 
+		p.del_flag = 0
+	</select>
+	
+	<!-- 删除商品对应分类映射关系记录 -->
+	<update id="deleteProductCategory" parameterType="java.util.HashMap">
+		update product_category p 
+		set
+		p.del_flag = 1
+		where
+		<foreach collection="categoryList" item="categoryId" index="index" open="" close=""
+			separator="OR">
+		p.category_id = #{categoryId}
+		</foreach>
+		and
+		p.del_flag = 0
+	</update>
+	
+	<!-- 商品数据查询SQL -->
+  	<resultMap id="productData" type="com.intelligence.business.product.entity.Product">
+  		<result column="id" property="productId"/>
+  		<result column="product_type" property="productType"/>
+  		<result column="product_name" property="productName"/>
+  		<result column="product_name_en" property="productNameEn"/>
+  		<result column="barcode" property="barcode"/>
+  		<result column="unit" property="unit"/>
+  		<result column="head_img" property="headImg"/>
+  		<result column="supplier_id" property="supplierId"/>
+  		<result column="country_id" property="countryId"/>
+  		<result column="brand_id" property="brandId"/>
+  		<result column="weight" property="weight"/>
+  		<result column="check_flag" property="checkFlag"/>
+  		<result column="is_top" property="isTop"/>
+  		<result column="set_time" property="setTime"/>
+  		<result column="master_flag" property="masterFlag"/>
+  		<result column="detail_id" property="detailId"/>
+  		<result column="sell_num" property="sellNum"/>
+  		<result column="sell_limit" property="sellLimit"/>
+  		<result column="uni_purchase_price" property="uniPurchasePrice"/>
+  		<result column="uni_refer_price" property="uniReferPrice"/>
+  		<result column="rate_bal" property="rateBal"/>
+  		<result column="price_bal" property="priceBal"/>
+  		<result column="group_flag" property="groupFlag"/>
+  		<result column="add_time" property="addTime"/>
+  		<result column="update_time" property="updateTime"/>
+	</resultMap>
+	<select id="queryProductData" resultMap="productData" parameterType="java.util.Map">
+	    SELECT
+		  id,
+		  product_type,
+		  product_name,
+		  product_name_en,
+		  barcode,
+		  unit,
+		  head_img,
+		  supplier_id,
+		  country_id,
+		  brand_id,
+		  weight,
+		  check_flag,
+		  is_top,
+		  set_time,
+		  master_flag,
+		  detail_id,
+		  sell_num,
+		  sell_limit,
+		  uni_purchase_price,
+		  uni_refer_price,
+		  rate_bal,
+		  price_bal,
+		  group_flag,
+		  add_time,
+		  update_time
+		FROM 
+			product
+		WHERE 
+			del_flag = 0 
+		AND 
+			check_flag = 1 
+		<if test="start != null">	
+		<![CDATA[
+		AND 
+			id >= #{start} 
+		AND 
+			id < #{end}
+	    ]]>
+	    </if>
+	    <if test="ids != null">
+	    AND 
+	    	id IN
+	     	<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+  				#{item}  
+ 			</foreach>  
+	    </if>
+	    <if test="id != null">
+	    AND 
+	    	id = #{id}
+	    </if>
+	</select>
+	
+	<!-- 查询前端需要的商品ID群 -->
+	<resultMap id="productFrontData" type="com.intelligence.business.product.entity.ProductFront">
+  		<result column="product_id" property="productId"/>
+  		<result column="price" property="uniPrice"/>
+	</resultMap>
+	<select id="queryFrontProductIds" resultMap="productFrontData" parameterType="java.util.Map">
+		SELECT
+  			a.product_id,
+  			a.price
+		FROM 
+			${productTbl} a
+		<if test="categoryId != null">		
+		LEFT JOIN
+			product_category b
+		ON
+			a.product_id = b.product_id
+		</if>
+		<if test="propId != null">	
+		LEFT JOIN
+			product_prop c
+		ON
+			a.product_id = c.product_id
+		</if>	
+		WHERE 
+			a.product_id > 100666665
+		<if test="productId != null">	
+		AND
+			a.product_id = #{productId}
+		</if>
+		<if test="productName != null"> 	
+		AND
+			a.product_name LIKE #{productName}
+		</if>
+		<if test="productNameEn != null">
+		AND
+			a.product_name_en LIKE #{productNameEn}
+		</if>
+		<if test="countryId != null">	
+		AND
+			a.country_id = #{countryId}
+		</if>	
+		<if test="brandId != null">
+		AND
+			a.brand_id = #{brandId}
+		</if>
+		<if test="productType != null">		
+		AND
+			a.product_type = #{productType}
+		</if>
+		<if test="categoryIdTo != null">
+		<![CDATA[	
+		AND
+			b.category_id >= #{categoryIdTo}
+		AND
+			b.category_id < #{categoryIdToE}
+		]]>	
+		</if>
+		<if test="categoryIdTh != null">
+		AND
+			b.category_id = #{categoryIdTh}
+		</if>
+		<if test="propId != null">	
+		AND
+			c.prop_id = #{propId}
+		</if>
+		<if test="categoryId != null">
+		GROUP BY a.product_id
+		</if>
+		<if test="orderNeed != null">
+		ORDER BY ${orderNeed}
+		</if>
+		<if test="limit != null">
+		LIMIT #{start}, #{limit}
+	    </if>
+	</select>
+	
+	<!-- 查询前端需要的商品ID数量 -->
+	<select id="queryFrontProductIdsCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+		<if test="categoryId != null">
+			SELECT
+	  			COUNT(0)
+			FROM 
+			(SELECT
+	  			a.id
+			FROM 
+				${productTbl} a		
+			LEFT JOIN
+				product_category b
+			ON
+				a.product_id = b.product_id
+			<if test="propId != null">	
+			LEFT JOIN
+				product_prop c
+			ON
+				a.product_id = c.master_product_id
+			</if>	
+			WHERE 
+				a.product_id > 100666665
+			<if test="productId != null">	
+			AND
+				a.product_id = #{productId}
+			</if>
+			<if test="productName != null"> 	
+			AND
+				a.product_name LIKE #{productName}
+			</if>
+			<if test="productNameEn != null">
+			AND
+				a.product_name_en LIKE #{productNameEn}
+			</if>
+			<if test="countryId != null">	
+			AND
+				a.country_id = #{countryId}
+			</if>	
+			<if test="brandId != null">
+			AND
+				a.brand_id = #{brandId}
+			</if>
+			<if test="productType != null">		
+			AND
+				a.product_type = #{productType}
+			</if>
+			<if test="categoryIdTo != null">
+			<![CDATA[	
+			AND
+				b.category_id >= #{categoryIdTo}
+			AND
+				b.category_id < #{categoryIdToE}
+			]]>	
+			</if>
+			<if test="categoryIdTh != null">
+			AND
+				b.category_id = #{categoryIdTh}
+			</if>
+			<if test="propId != null">	
+			AND
+				c.prop_id = #{propId}
+			</if>
+			GROUP BY a.product_id
+			)
+		</if>
+		<if test="categoryId == null">
+			SELECT
+	  			COUNT(0)
+			FROM 
+				${productTbl} a
+			WHERE 
+				a.product_id > 100666665
+			<if test="productId != null">	
+			AND
+				a.product_id = #{productId}
+			</if>
+			<if test="productName != null"> 	
+			AND
+				a.product_name LIKE #{productName}
+			</if>
+			<if test="productNameEn != null">
+			AND
+				a.product_name_en LIKE #{productNameEn}
+			</if>
+			<if test="countryId != null">	
+			AND
+				a.country_id = #{countryId}
+			</if>	
+			<if test="brandId != null">
+			AND
+				a.brand_id = #{brandId}
+			</if>
+		</if>
+	</select>
+	
+	<!-- 商品筛选项查询 -->
+  	<resultMap id="productFilter" type="com.intelligence.business.product.entity.ProductFilter">
+  		<result column="category_id" property="categoryId"/>
+  		<result column="country_id" property="countryId"/>
+	</resultMap>
+	<select id="queryProductFilter" resultMap="productFilter" parameterType="java.util.Map">
+		SELECT
+  			category_id,
+  			country_id
+	 	FROM 
+	 		${productTbl}
+		WHERE 
+			del_flag = 0 
+		AND 
+			filter_level = #{filterLevel}
+		<if test="countryId != null"> 
+		AND 
+			country_id = #{countryId}
+		</if>
+		<if test="categoryId != null">
+		AND 
+			category_id = #{categoryId}
+		</if>
+		<if test="categoryIdS != null">		
+		AND
+			b.category_id > #{categoryIdS}
+		</if>	
+		<if test="categoryIdE != null">
+		<![CDATA[			
+		AND
+			b.category_id < #{categoryIdE}
+		]]>
+		</if>
+		<if test="countryIds != null">
+	    AND 
+	    	a.country_id IN
+	     	<foreach item="item" index="index" collection="countryIds" open="(" separator="," close=")">  
+  				#{item}  
+ 			</foreach>  
+	    </if>
+	</select>
+	
+	<!-- 商品低级筛选项查询 -->
+  	<resultMap id="productFilterLow" type="com.intelligence.business.product.entity.ProductFilter">
+  		<result column="prop_id" property="propId"/>
+  		<result column="brand_id" property="brandId"/>
+  		<result column="country_id" property="countryId"/>
+  		<result column="category_id" property="categoryId"/>
+	</resultMap>
+	<select id="queryProductFilterLow" resultMap="productFilterLow" parameterType="java.util.Map">
+		SELECT
+  			a.country_id,
+			a.brand_id,
+			<if test="categoryIdTh != null or propId != null">
+			c.prop_id,
+			</if>
+  			b.category_id
+		FROM 
+			${productTbl} a
+		LEFT JOIN
+			product_category b
+		ON 
+			a.product_id = b.product_id
+		<if test="categoryIdTh != null">
+		LEFT JOIN
+			product_prop c
+		ON 
+			a.product_id = c.master_product_id
+		</if>
+		WHERE
+			a.product_id > 10666665
+		AND
+			b.del_flag = 0
+		<if test="categoryIdTh != null or propId != null">
+		AND
+			c.del_flag = 0
+		</if>
+		<if test="categoryIdTh != null">	
+		AND
+			b.category_id = #{categoryIdTh}
+		</if>
+		<if test="propId != null">	
+		AND
+			c.prop_id = #{propId}
+		</if>	
+		<if test="countryId != null">	
+		AND
+			a.country_id = #{countryId}
+		</if>
+		<if test="brandId != null">		
+		AND
+			a.brand_id = #{brandId}
+		</if>	
+		<if test="categoryIdS != null">		
+		AND
+			b.category_id > #{categoryIdS}
+		</if>	
+		<if test="categoryIdE != null">
+		<![CDATA[			
+		AND
+			b.category_id < #{categoryIdE}
+		]]>
+		</if>
+	</select>
+	
+	<!-- 查询商品属性 -->
+	<resultMap id="productProp" type="java.util.HashMap">
+		<result column="id" property="productId"/>
+  		<result column="prop_id" property="propId"/>
+	</resultMap>
+	<select id="queryProductProp" resultMap="productProp" parameterType="java.lang.Integer">
+		SELECT 
+			a.id, 
+			b.prop_id 
+		FROM 
+			product a 
+		LEFT JOIN 
+			product_prop b 
+		ON 
+			a.id = b.product_id 
+		WHERE 
+			a.product_master_id = #{productMasterId} 
+		AND 
+			a.del_flag = 0 
+		AND 
+			b.del_flag = 0
+	</select>
+	 
+	<!-- 获取商品详情 -->
+	<select id="queryProductDetail" resultType="java.lang.StringBuilder" parameterType="java.lang.Integer">
+		SELECT 
+			detail 
+		FROM 
+			detail 
+		WHERE 
+			id = #{detailId}
+		AND 
+			del_flag= 0
+	</select> 
+
+	<!-- 更新商品 -->
+	<update id="updateProduct" parameterType="java.util.Map">
+		UPDATE 
+			product 
+		<set> 
+			<if test="productName != null">
+			product_name = #{productName},
+			</if>
+			<if test="productNameEn != null"> 
+			product_name_en = #{productNameEn},
+			</if>
+			<if test="barcode != null"> 
+			barcode = #{barcode}, 
+			</if>
+			<if test="unit != null">
+			unit = #{unit}, 
+			</if>
+			<if test="headImg != null">
+			head_img = #{headImg}, 
+			</if>
+			<if test="supplierId != null">
+			supplier_id = #{supplierId},
+			</if>
+			<if test="countryId != null"> 
+			country_id = #{countryId}, 
+			</if>
+			<if test="brandId != null">
+			brand_id = #{brandId}, 
+			</if>
+			<if test="weight != null">
+			weight = #{weight}, 
+			</if>
+			<if test="sellNum != null">
+			sell_num = #{sellNum}, 
+			</if>
+			<if test="sellLimit != null">
+			sell_limit = #{sellLimit},
+			</if>
+			<if test="topRank != null"> 
+			top_rank = #{topRank}, 
+			</if>
+			<if test="uniPurchasePrice != null">
+			uni_purchase_price = #{uniPurchasePrice},
+			</if>
+			<if test="uniReferPrice != null"> 
+			uni_refer_price = #{uniReferPrice},
+			</if>
+			update_time = #{updateTime}
+		</set>	 
+		WHERE 
+			id = #{productId} 
+		AND 
+			del_flag = 0
+	</update>
+  
+</mapper>

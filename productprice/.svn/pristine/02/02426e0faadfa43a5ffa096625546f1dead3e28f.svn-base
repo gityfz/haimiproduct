@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.ProductTypeMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  	<!-- 新增品类 -->	
+  	<insert id="insertProductType" useGeneratedKeys="true" keyProperty="productTypeId" parameterType="java.util.HashMap">   
+    	INSERT INTO product_type
+            (product_type, 
+            product_type_name,
+            product_type_level, 
+            add_time)
+		VALUES (
+			#{productType}, 
+			#{productTypeName}, 
+			#{productTypeLevel},
+        	#{addTime});   
+	</insert>
+	
+	<!-- 更新商品品类 -->
+	<update id="updateProductType"  parameterType="java.util.HashMap">
+		UPDATE
+		product_type
+		set
+		id=#{productTypeId}
+		<if test="productTypeName != null">
+		,
+		product_type_name =#{productTypeName}
+		</if>
+		WHERE
+		id = #{productTypeId}
+		;
+	</update>
+	
+	<!-- 商品分类值对 -->
+  	<resultMap id="productTypeMap" type="com.intelligence.business.product.entity.ProductType">
+  		<result column="id" property="productTypeId"/>
+  		<result column="product_type" property="productType"/>
+  		<result column="product_type_name" property="productTypeName"/>
+  		<result column="product_type_level" property="productTypeLevel"/>
+  		<result column="add_time" property="addTime"/>
+	</resultMap>
+	
+	<!-- 获取指定品类编号的子分类集合 -->
+	<select id="getChildList" resultMap="productTypeMap" >
+    	<![CDATA[
+	    select 
+	    	id,
+	    	product_type,
+	    	product_type_name,
+	    	product_type_level,
+	    	add_time
+	    from 
+	    	product_type
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	product_type <= #{endId}
+	    and
+	    	product_type >= #{startId} 
+	    and 
+	    	product_type like #{searchCondition}
+	    ]]>
+	</select>
+	
+	
+	<!-- 获取指定品类编号的信息 -->
+	<select id="getProductType" resultMap="productTypeMap">
+    	<![CDATA[
+	    select 
+	    	id,
+	    	product_type,
+	    	product_type_name,
+	    	product_type_level,
+	    	add_time
+	    from 
+	    	product_type
+	    where 
+	    	del_flag = 0 
+	    and
+	    	product_type like #{productType} 
+	    ]]>
+	</select>
+	
+	
+	
+	<!-- 获取指定品类编号的子分类集合 -->
+	<select id="querySupBraList" resultType="HashMap" >
+    	<![CDATA[
+	    select 
+	    	brand_id as brandId,
+	    	supplier_id as supplierId
+	    from 
+	    	product
+	    where 
+	    	product_type like #{queryCondition} 
+	    and
+	    	del_flag = 0
+	    ]]>
+	</select>
+	
+	
+	
+</mapper>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xmlns:task="http://www.springframework.org/schema/task"
+     xmlns:p="http://www.springframework.org/schema/p"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.2.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+     http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.2.xsd">
+    
+    <!-- 文件导入 -->
+    <import resource="datasource.xml"/>
+    
+    <!-- 注解扫描  过滤controller注解 --> 
+    <context:component-scan base-package="com.intelligence">
+     	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    <!-- 添加定时任务注解 -->
+    <!-- 线程池（执行器） --> 
+    <task:executor id="executor" pool-size="1-5" queue-capacity="128"/>  <!-- pool-size="1-4"，表示线程池活跃的线程数为1，最大线程数为4；queue-capacity="128"，表示任务队列的最大容量。 -->
+    <!-- 任务池 --> 
+    <task:scheduler id="scheduler" pool-size="10" />  
+    <task:annotation-driven executor="executor" scheduler="scheduler" />  
+    
+    
+	<!-- 配置多文件上传 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding">
+			<value>UTF-8</value>
+		</property>
+		<property name="maxUploadSize">
+			<!-- 上传文件大小限制为31M，31*1024*1024 -->
+			<value>32505856</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+	
+	<!-- 用这个代替xmemcacheClient去构建client  -->
+	<bean id="xmemcacheBuilder" class="net.rubyeye.xmemcached.XMemcachedClientBuilder">
+		<!-- 暂时我们就用两个端口 -->
+	    <constructor-arg>
+	      <list>
+	        <bean class="java.net.InetSocketAddress">
+	          <constructor-arg>
+	            <value>127.0.0.1</value>
+	          </constructor-arg>
+	          <constructor-arg>
+	            <value>11211</value>
+	          </constructor-arg>
+	        </bean>
+	        <!-- <bean class="java.net.InetSocketAddress">
+	          <constructor-arg>
+	            <value>127.0.0.1</value>
+	          </constructor-arg>
+	          <constructor-arg>
+	            <value>11212</value>
+	          </constructor-arg>
+	        </bean> -->
+	      </list>
+	    </constructor-arg>
+	    <!-- 权重配置 -->
+	    <constructor-arg>
+	      <list>
+	        <value>1</value>
+	        <!-- <value>2</value> -->
+	      </list>
+	    </constructor-arg>
+	    <!--</property>-->
+	    <!-- nio 连接池 配置，默认是 1 -->
+	    <property name="connectionPoolSize" value="64"/>
+	    <!-- 二进制协议 ，默认是 TextCommandFactory-->
+	    <property name="commandFactory">
+	      <!--<bean class="net.rubyeye.xmemcached.command.BinaryCommandFactory"/> -->
+	      <bean class="net.rubyeye.xmemcached.command.TextCommandFactory"/>
+	    </property>
+	    <!--分布式策略 一致性hash，默认是  ArrayMemcachedSessionLocator -->
+	    <property name="sessionLocator">
+	      <!--<bean class="net.rubyeye.xmemcached.impl.KetamaMemcachedSessionLocator"/> -->
+	      <bean class="net.rubyeye.xmemcached.impl.ArrayMemcachedSessionLocator"/>
+	    </property>
+	    <!--序列化转换器，默认就是这个 -->
+	    <!--<property name="transcoder" value="net.rubyeye.xmemcached.transcoders.SerializingTranscoder"/>-->
+	    <!--字节缓冲器，不知道为啥这玩意儿过时了，源码默认采用的这个！！ -->
+	    <!--<property name="bufferAllocator" value="net.rubyeye.xmemcached.buffer.SimpleBufferAllocator"/>-->
+	  </bean>
+	  <!-- 配置一个客户端 -->
+	<bean name="xmemcachedClient" factory-bean="xmemcacheBuilder" factory-method="build" destroy-method="shutdown"/>
+	
+	<context:property-placeholder location="classpath*:cache/redis.properties" ignore-unresolvable="true"/>
+	<bean id="jedisPpoolConfig" class="redis.clients.jedis.JedisPoolConfig">  
+        <property name="maxIdle" value="${redis.maxIdle}" />
+        <!-- 新版本的jedis中将maxActive改成了maxTotal , MaxWait改成了MaxWaitMillis -->  
+        <property name="maxTotal" value="${redis.maxActive}" />  
+        <property name="MaxWaitMillis" value="${redis.maxWait}" />  
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />  
+    </bean>  
+      
+    <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  
+        p:host-name="${redis.host}" p:port="${redis.port}" p:pool-config-ref="jedisPpoolConfig"/> <!-- p:password="${redis.pass}"  -->  
+      
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">  
+        <property name="connectionFactory"   ref="connectionFactory" />  
+    </bean>         
+     
+    <!-- AOP配置start 
+    <aop:config> -->
+    	<!-- 切面配置  
+        <aop:aspect id="TestAspect" ref="aspectBean"> --> 
+            <!--配置com.spring.service包下所有类或接口的所有方法-->
+            <!-- 切点配置  
+            <aop:pointcut id="businessService"  
+                expression="execution(* com.devsys.autodev.service.*.*(..))" /> -->
+            <!-- 方法执行前  
+            <aop:before pointcut-ref="businessService" method="doBefore"/> -->
+            <!-- 方法执行后  
+            <aop:after pointcut-ref="businessService" method="doAfter"/> -->
+            <!-- 包围一个连接点的通知  
+            <aop:around pointcut-ref="businessService" method="doAround"/> -->
+            <!-- 在某连接点正常完成后执行的通知，不包括抛出异常的情况  
+            <after-returning pointcut-ref="businessService" method="doReturn"/> -->
+            <!--  在方法抛出异常退出时执行的通知  
+            <aop:after-throwing pointcut-ref="businessService" method="doThrowing" throwing="ex"/>  
+        </aop:aspect>  
+    </aop:config>  
+     
+    <bean id="aspectBean" class="com.spring.aop.TestAspect" />   -->
+    <!-- AOP配置end -->  
+     
+    <!-- spring 系统监控参考
+    <beans profile="monitor">
+        <bean id="timeMonitor" class="com.tuniu.vnd.accio.common.util.monitor.TimeMonitor"/>
+	    <aop:config>
+	        <aop:aspect ref="timeMonitor">
+	            <aop:pointcut id="busiMethod" expression="execution(* com.tuniu.vnd.accio..business..*Business.*(..))" />
+	            <aop:pointcut id="svcMethod" expression="execution(* com.tuniu.vnd.accio..service..*ServiceImpl.*(..))" />
+	            <aop:around method="logTime" pointcut-ref="svcMethod"/>
+	            <aop:around method="logTime" pointcut-ref="busiMethod"/>
+	        </aop:aspect>
+	    </aop:config>
+    </beans>  -->
+     
+</beans>

@@ -1,0 +1,51 @@
+package com.intelligence.autodev.service.impl;
+
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.autodev.dao.FileUploadDao;
+import com.intelligence.autodev.service.UploadService;
+
+@Repository
+public class UploadServiceImpl implements UploadService{
+
+	@Resource
+	private FileUploadDao fileUploadDao;
+	
+	/** @param
+	 *  @return int
+	 *  获取当前最大id
+	 * 
+	 */
+	public int getMaxId() {
+		if(fileUploadDao.getMaxId()==null){
+			return 0;
+		}else{
+		return fileUploadDao.getMaxId()+1;
+		}
+	}
+	
+	
+	public void fileUpload(int id,String name ,String path,String w,String h ,String t) {
+		fileUploadDao.fileUpload(id, name, path,w,h,t);
+	}
+
+
+	public String getFileName(int id) {
+		return fileUploadDao.getFileName(id);
+	}
+
+	public String getFilePath(int id) {
+		return fileUploadDao.getPathName(id);
+	}
+
+
+	@Override
+	public Map<String, Object> getFileCase(int id) {
+		return fileUploadDao.getFileCase(id);
+	}
+
+}

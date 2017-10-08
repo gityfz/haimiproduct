@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.autodev.persistance.TestMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  <select id="queryTest" resultType="java.lang.Integer">
+    select 
+    	COUNT(0)
+    from 
+    	test2
+  </select>
+  
+</mapper>

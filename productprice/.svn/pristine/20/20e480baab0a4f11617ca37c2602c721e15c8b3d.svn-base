@@ -1,0 +1,115 @@
+package com.intelligence.business.product.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.intelligence.business.product.dao.IProductCategoryDao;
+import com.intelligence.business.product.dao.ISupplierDao;
+import com.intelligence.business.product.entity.Category;
+import com.intelligence.business.product.service.IProductCategoryService;
+import com.intelligence.common.exception.PowerException;
+
+/**
+ * @author 作者 E-mail:bzp
+ * @date 创建时间：2017年1月13日 下午4:47:23
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+@Service
+public class ProductCategoryServiceImpl implements IProductCategoryService {
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory
+			.getLogger(ProductCategoryServiceImpl.class);
+
+	/**
+	 * 商品分类DAO
+	 */
+	@Resource
+	private IProductCategoryDao iProductCategoryDao;
+
+	/**
+	 * 添加一条商品分类信息
+	 */
+	@Override
+	public Integer addProductCategory(HashMap<String, Object> params) throws PowerException{
+		// TODO Auto-generated method stub
+		try {
+			// 获取时间
+			Date currentTime = new Date();
+			params.put("addTime", currentTime);
+			return iProductCategoryDao.addProductCategory(params);
+		} catch (PowerException e) {
+			throw e;
+		}
+
+	}
+
+	/**
+	 * 获取指定分类的子分类集合
+	 * @param id
+	 * @return List<Category>
+	 */
+	public List<Category> getCategoryChild(int id) throws PowerException{
+	    try {
+		String categoryId = iProductCategoryDao.selectCategoryId(id).toString();
+		String startId = null;
+		String searchCondition=null;
+		String strThr=categoryId.substring(categoryId.length()-3);
+		String strSec=categoryId.substring(categoryId.length()-6,categoryId.length()-3);
+		String strFir=categoryId.substring(0,categoryId.length()-6);
+		if(!strThr.equals("000")){
+		    //三级分类无子分类
+		    return null;
+		}else if(!strSec.equals("000")){
+		    //二级分类
+		    startId = strFir+strSec+"001";
+		    searchCondition = "%";
+		}else {
+		    //一级分类
+		    startId = strFir+"001000";
+		    searchCondition = "%000";
+		}
+		return iProductCategoryDao.getChildList(Integer.parseInt(startId),searchCondition);
+		
+	} catch (PowerException e) {
+		throw e;
+	}
+	}
+
+	public Category getCategoryParent(int id) throws PowerException {
+	    try {
+		String categoryId = iProductCategoryDao.selectCategoryId(id).toString();
+		String parentId = null;
+		String strThr=categoryId.substring(categoryId.length()-3);
+		String strSec=categoryId.substring(categoryId.length()-6,categoryId.length()-3);
+		String strFir=categoryId.substring(0,categoryId.length()-6);
+		boolean a = "000".equals(strFir);
+		if("000".equals(strThr) & "000".equals(strSec)){
+		    //一级分类无父分类
+		    return null;
+		}else if("000".equals(strThr) & !"000".equals(strSec) ){
+		    //二级分类父类为一级
+		    parentId = strFir+"000000";
+		}else if(!"000".equals(strSec) & !"000".equals(strThr)){
+		    //三级分类父类为二级
+		    parentId = strFir+strSec+"000";
+		}
+		return iProductCategoryDao.getCategoryMap(Integer.parseInt(parentId));
+		
+	} catch (PowerException e) {
+		throw e;
+	}
+	}
+
+}

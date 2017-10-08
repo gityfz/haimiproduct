@@ -1,0 +1,126 @@
+package com.intelligence.business.product.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.intelligence.business.product.dao.IProductTypeDao;
+import com.intelligence.business.product.entity.ProductType;
+import com.intelligence.business.product.service.IProductTypeService;
+import com.intelligence.common.exception.PowerException;
+
+@Service
+public class ProductTypeServiceImpl implements IProductTypeService {
+
+    /**
+     * 记录日志
+     */
+    public final static Logger logger = LoggerFactory
+	    .getLogger(ProductTypeServiceImpl.class);
+
+    /**
+     * 商品品类DAO层
+     */
+    @Resource
+    private IProductTypeDao iProductTypeDao;
+
+    /**
+     * 新增一条商品品类信息
+     */
+    public Integer addProductType(HashMap<String, Object> productType)
+	    throws PowerException {
+	try {
+	    // 获取当前时间
+	    Date currentTime = new Date();
+	    productType.put("addTime", currentTime);
+	    return iProductTypeDao.addProductType(productType);
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+
+    /**
+     * 更新商品分类表信息
+     */
+    @Override
+    public Integer updateProductType(HashMap<String, Object> params)
+	    throws PowerException {
+	// TODO Auto-generated method stub
+	try {
+	    // 若入参不含任何改动，返回0
+	    if (1 >= params.size()) {
+		return 0;
+	    } else {
+		return iProductTypeDao.updateProductType(params);
+	    }
+	} catch (PowerException e) {
+	    throw e;
+	}
+
+    }
+
+    /**
+     * 根据品类id查询指定品类下级品类合集
+     */
+    @Override
+    public List<ProductType> getTypeChild(int id) throws PowerException {
+	try {
+	    String productTypeId = iProductTypeDao.getProductTypeId(id)
+		    .toString();
+	    String startId = null;
+	    String endId = null;
+	    if (null == productTypeId) {
+		return null;
+	    }
+	    String strSec = productTypeId.substring(productTypeId.length() - 3);
+	    String strFir = productTypeId.substring(0,
+		    productTypeId.length() - 3);
+	    if (!"000".equals(strSec)) {
+		// 二级品类无子类
+		return null;
+	    } else {
+		// 一级品类
+		startId = strFir + "001";
+		endId = strFir + "999";
+	    }
+	    return iProductTypeDao.getProductTypeChild(startId, endId);
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+
+    /**
+     * 根据品类id查询指定品类上级品类信息
+     */
+    @Override
+    public ProductType getTypeParent(int id) throws PowerException {
+	try {
+	    String productType = iProductTypeDao.getProductTypeId(id)
+		    .toString();
+	    String productTypeString = null;
+	    if (null == productType) {
+		return null;
+	    }
+	    String strSec = productType.substring(productType.length() - 3);
+	    String strFir = productType.substring(0, productType.length() - 3);
+	    if (!"000".equals(strSec)) {
+		// 二级品类
+		productTypeString = strFir + "000";
+	    } else {
+		// 一级品类无父类
+		return null;
+	    }
+	    return iProductTypeDao.getProductType(Integer
+		    .parseInt(productTypeString));
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+
+}

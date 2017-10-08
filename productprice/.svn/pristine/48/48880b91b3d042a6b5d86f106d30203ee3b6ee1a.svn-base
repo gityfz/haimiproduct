@@ -1,0 +1,66 @@
+/**
+ * 
+ */
+package com.intelligence.common.constant;
+
+/**
+ * @author p-sunhao
+ *
+ */
+public enum StringCon {
+	
+	// 默认字符串
+	DEFAULT("default"),
+	
+	// 空串
+	EMPTY_STR(""),
+	
+	// 编码
+	UTF_8("UTF-8"),
+	
+	// GET
+	GET("GET"),
+	
+	// POST
+	POST("POST"),
+	
+	// 问号
+	ASK("?"),
+	
+	// 横杠
+	HK("-"),
+	
+	// 状态200
+	STATUS_200("200"),
+	
+	// 状态201
+	STATUS_201("201"),
+	
+	// http类型json
+	HTTP_TYPE_JSON("application/json"),
+	
+	// 返回数据类型html+UTF-8
+	CONTENT_TYPE_TEXT_HTML_UTF8("text/html; charset=utf-8");
+	
+	
+	// 字符值
+	private String value = null;
+
+    /**
+     * 字符串枚举类构造函数
+     * 
+     * @param id
+     * @param message
+     */
+    StringCon(String val) {
+    	this.value = val;
+    }
+
+    /**
+     * @return the value
+     */
+    public String getValue() {
+        return this.value;
+    }
+    
+}

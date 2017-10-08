@@ -1,0 +1,18 @@
+package com.intelligence.business.product.dao;
+
+import java.util.HashMap;
+
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductBrandDao {
+
+	/**
+	 * 新增一条品牌
+	 * 
+	 * 
+	 * @param brand
+	 * @return
+	 */
+	public Integer addProductBrand(HashMap<String, Object> brand) throws PowerException;
+	
+}

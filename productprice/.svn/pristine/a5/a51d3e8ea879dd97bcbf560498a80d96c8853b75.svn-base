@@ -1,0 +1,36 @@
+package com.intelligence.business.price.dao.impl;
+
+import java.math.BigDecimal;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.business.price.dao.PriceRateDao;
+import com.intelligence.business.price.persistance.PriceRateMapper;
+
+/**
+ * 定时刷新汇率
+ * @author 作者 E-mail: bzp
+ * @date 创建时间：2017年1月10日 下午3:58:01
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+@Component
+@Repository
+public class PriceRateDaoImpl implements PriceRateDao {
+
+	@Resource
+	private PriceRateMapper priceRateMapper;
+
+	@Override
+	public void updateRate(BigDecimal currency_rate, String fromCurrency) {
+		// TODO Auto-generated method stub
+		priceRateMapper.updateRate(currency_rate, fromCurrency);
+		;
+	}
+
+}

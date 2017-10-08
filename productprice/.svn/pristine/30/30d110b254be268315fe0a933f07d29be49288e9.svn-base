@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.intelligence.business.product.persistance.ProductCategoryMapper">
+	
+	<!-- 新增分类 -->
+	<insert id="insertCategory" useGeneratedKeys="true"
+		keyProperty="id" parameterType="java.util.HashMap">
+		INSERT INTO
+		category
+		(category_id,
+		category_name,
+		category_index,
+		category_level,
+		add_time
+		)
+		VALUES(
+		#{categoryId},
+		#{categoryName},
+		#{categoryIndex},
+		#{categoryLevel},
+		#{addTime}
+		);
+	</insert>
+	
+	<!-- 更新分类表 -->
+	<update id="updateCategory"  parameterType="java.util.HashMap">
+		UPDATE
+		category
+		set 
+		id=#{id}
+		<if test="categoryName != null"> 
+		,
+		category_name = #{categoryName}
+		</if>
+		<if test="categoryIndex != null"> 
+		,
+		category_index = #{categoryIndex}
+		</if>
+		WHERE
+		id = #{id}
+		;
+	</update>
+	
+	<!-- 商品分类值对 -->
+  	<resultMap id="categoryMap" type="com.intelligence.business.product.entity.Category">
+  		<result column="id" property="id"/>
+  		<result column="category_id" property="categoryId"/>
+  		<result column="category_name" property="categoryName"/>
+  		<result column="category_index" property="categoryIndex"/>
+  		<result column="category_level" property="categoryLevel"/>
+  		<result column="add_time" property="addTime"/>
+	</resultMap>
+	
+	<!-- 获取指定分类编号的分类信息 -->
+	<select id="getCategory" resultMap="categoryMap" >
+    	<![CDATA[
+	    select 
+	    	id,
+	    	category_id,
+	    	category_name,
+	    	category_index,
+	    	category_level,
+	    	add_time
+	    from 
+	    	category
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	category_id like #{categoryId} 
+	    ]]>
+	</select>
+	
+	<!-- 获取指定分类编号的下级子分类集合 -->
+	<select id="getChildList" resultMap="categoryMap" >
+    	<![CDATA[
+	    select 
+	    	id,
+	    	category_id,
+	    	category_name,
+	    	category_index,
+	    	category_level,
+	    	add_time
+	    from 
+	    	category
+	    where 
+	    	del_flag = 0 
+	    and 
+			category_id like #{searchCondition}	    	
+	    and	
+	        category_id >= #{startId} 
+        and	
+        	category_id <= #{endId} 
+	    ]]>
+	</select>
+</mapper >
+

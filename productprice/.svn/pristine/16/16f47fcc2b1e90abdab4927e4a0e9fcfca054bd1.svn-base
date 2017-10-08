@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.ProductMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  	<!-- 新增产品 -->	
+  	<insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId" parameterType="java.util.HashMap">   
+    	INSERT INTO product
+            (product_type, 
+            product_name,
+            <if test="productNameEn != null"> 
+            product_name_en, 
+            </if>
+            <if test="barcode != null">
+            barcode,
+            </if> 
+            unit, 
+            head_img, 
+            supplier_id, 
+            country_id, 
+            brand_id,
+            weight, 
+            check_flag, 
+            is_top, 
+            <if test="setTime != null">
+            set_time, 
+            </if>
+            master_flag, 
+            detail_id,
+            sell_limit, 
+            uni_purchase_price,
+            uni_refer_price,
+            <if test="rateBal != null">
+            rate_bal, 
+            </if>
+            <if test="priceBal != null">
+            price_bal, 
+            </if>
+            group_flag, 
+            add_time)
+		VALUES (
+			#{productType}, 
+			#{productName}, 
+			<if test="productNameEn != null">
+			#{productNameEn},
+			</if> 
+			<if test="barcode != null">
+			#{barcode}, 
+			</if>
+			#{unit}, 
+			#{headImg}, 
+			#{supplierId}, 
+			#{countryId},
+        	#{brandId}, 
+        	#{weight}, 
+        	#{checkFlag}, 
+        	#{isTop}, 
+        	<if test="setTime != null">
+        	#{setTime}, 
+        	</if>
+        	#{masterFlag}, 
+        	#{detailId}, 
+        	#{sellLimit},
+        	#{uniPurchasePrice},
+        	#{uniReferPrice},
+        	<if test="rateBal != null"> 
+        	#{rateBal},
+        	</if>
+        	<if test="priceBal != null">
+        	#{priceBal},
+        	</if> 
+        	#{groupFlag}, 
+        	#{addTime});   
+	</insert>
+	
+	<!-- 新增明细 -->	
+  	<insert id="insertDetail" useGeneratedKeys="true" keyProperty="detailId" parameterType="java.util.HashMap">   
+    	INSERT INTO detail (detail,add_time) VALUES (#{detail},#{addTime});   
+	</insert>
+	
+  
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	<!-- 引入jdbc配置文件 -->
+	<context:property-placeholder location="classpath*:db/jdbc.properties" ignore-unresolvable="true"/> 
+	
+	<!-- 开启这个配置，spring才能识别@Scheduled注解   --> 
+	 
+    
+	<!-- 配置c3p0数据源 -->
+	<bean id="dataSourceC3p0" class="com.mchange.v2.c3p0.ComboPooledDataSource"> <!-- destroy-method="close" -->
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="user" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.password}" />
+		<!--连接池中保留的最大连接数。Default: 15 -->
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+		<!--连接池中保留的最小连接数。 -->
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
+		<!--初始化时获取的连接数，取值应在minPoolSize与maxPoolSize之间。Default: 3 -->
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+		<!--最大空闲时间,60秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}" />
+		<!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
+		<property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
+		<!--JDBC的标准参数，用以控制数据源内加载的PreparedStatements数量。但由于预缓存的statements 属于单个connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素。 
+			如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0 -->
+		<property name="maxStatements" value="${jdbc.maxStatements}" />
+		<!--每60秒检查所有连接池中的空闲连接。Default: 0 -->
+		<property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
+		<!--定义在从数据库获取新连接失败后重复尝试的次数。Default: 30 -->
+		<property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
+		<!--获取连接失败将会引起所有等待连接池来获取连接的线程抛出异常。但是数据源仍有效 保留，并在下次调用getConnection()的时候继续尝试获取连接。如果设为true，那么在尝试 
+			获取连接失败后该数据源将申明已断开并永久关闭。Default: false -->
+		<property name="breakAfterAcquireFailure" value="${jdbc.breakAfterAcquireFailure}" />
+		<!--因性能消耗大请只在需要的时候使用它。如果设为true那么在每个connection提交的 时候都将校验其有效性。建议使用idleConnectionTestPeriod或automaticTestTable 
+			等方法来提升连接测试的性能。Default: false -->
+		<property name="testConnectionOnCheckout" value="${jdbc.testConnectionOnCheckout}" />
+		<!--如果设为true那么在取得连接的同时将校验连接的有效性。Default: false
+		<property name="testConnectionOnCheckin">true</property> -->
+		<property name="automaticTestTable" value="C3P0TestTable"/>
+	</bean>
+
+	<!-- 创建SqlSessionFactory，同时指定数据源 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    	<property name="dataSource" ref="dataSourceC3p0" />
+    	<!--configLocation属性指定mybatis的核心配置文件-->
+		<property name="configLocation" value="classpath:db/mybatis-configuration.xml"/>
+		<property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+    
+    <!-- MapperScannerConfigurer配置 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!--basePackage指定要扫描的包，在此包之下的映射器都会被搜索到。可指定多个包，包与包之间用逗号或分号分隔-->
+		<property name="basePackage" value="com.intelligence.autodev.persistance;com.intelligence.business.price.persistance"/>
+	</bean>
+
+<!--<bean id="dataSource"
+	class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	<property name="driverClassName">
+		<value>org.logicalcobwebs.proxool.ProxoolDriver</value>
+	</property>
+	<property name="url">
+		<value>proxool.proxoolPool</value>此处为proxool配置文件中的名称
+	</property>
+</bean>
+<bean id="sessionFactory"
+	class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+	<property name="dataSource">
+		<ref bean="dataSource" />
+	</property>
+	<property name="hibernateProperties">
+		<props>
+			<prop key="hibernate.dialect">
+				org.hibernate.dialect.MySQLDialect
+			</prop>
+			<prop key="hibernate.show_sql">true</prop>
+		</props>
+	</property>
+	<property name="mappingResources">
+		<list>
+			<value>com/picc/bean/Insurance.hbm.xml</value>
+			<value>com/picc/bean/Customer.hbm.xml</value>
+			<value>com/picc/bean/Employee.hbm.xml</value>
+			<value>com/picc/bean/Vipconf.hbm.xml</value>
+			<value>com/picc/bean/Cardinfo.hbm.xml</value>
+		</list>
+	</property>
+</bean> -->
+
+
+<!--<something-else-entirely>
+    <proxool>
+       <alias>proxoolPool</alias>在其他位置进行引用-->
+       <!--proxool只能管理由自己产生的链接
+       <driver-url>jdbc:mysql://localhost:3306/picc</driver-url>
+       <driver-class>com.mysql.jdbc.Driver</driver-class>
+       <driver-properties>
+             <property name="user" value="root"/>
+             <property name="password" value="root"/>
+       </driver-properties>-->
+       <!-- proxool自动侦查各个链接状态的毫秒数，侦查到空闲的链接就马上回收，超时的销毁
+       <house-keeping-sleep-time>90000</house-keeping-sleep-time> -->
+       <!-- 当连接忙时等候的最大请求数,超过这个请求将不再接收
+       <maximum-new-connections>20</maximum-new-connections> -->
+       <!-- 最少保持的空闲连接数
+       <prototype-count>5</prototype-count> -->
+       <!--最大连接数
+       <maximum-connection-count>100</maximum-connection-count> -->
+       <!-- 最小连接数
+       <minimum-connection-count>10</minimum-connection-count> -->
+       <!-- 自动重连
+       <house-keeping-test-sql>select CURRENT_DATE</house-keeping-test-sql>
+    </proxool>
+</something-else-entirely> -->
+
+
+<!-- 配置dbcp数据源 <bean id="dataSource2" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource"> 
+	<property name="driverClassName" value="${jdbc.driverClassName}"/> <property 
+	name="url" value="${jdbc.url}"/> <property name="username" value="${jdbc.username}"/> 
+	<property name="password" value="${jdbc.password}"/> -->
+<!-- 池启动时创建的连接数量 <property name="initialSize" value="5"/> -->
+<!-- 同一时间可以从池分配的最多连接数量。设置为0时表示无限制。 <property name="maxActive" value="30"/> -->
+<!-- 池里不会被释放的最多空闲连接数量。设置为0时表示无限制。 <property name="maxIdle" value="20"/> -->
+<!-- 在不新建连接的条件下，池中保持空闲的最少连接数。 <property name="minIdle" value="3"/> -->
+<!-- 设置自动回收超时连接 <property name="removeAbandoned" value="true" /> -->
+<!-- 自动回收超时时间(以秒数为单位) <property name="removeAbandonedTimeout" value="200"/> -->
+<!-- 设置在自动回收超时连接的时候打印连接的超时错误 <property name="logAbandoned" value="true"/> -->
+<!-- 等待超时以毫秒为单位，在抛出异常之前，池等待连接被回收的最长时间（当没有可用连接时）。设置为-1表示无限等待。 <property name="maxWait" 
+	value="100"/> </bean> -->
+
+</beans>

@@ -1,0 +1,49 @@
+package com.intelligence.business.product.persistance;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.intelligence.business.product.entity.ProductType;
+
+public interface ProductTypeMapper {
+
+	/**
+	 * 新增品类
+	 * 
+	 * @param type
+	 */
+	void insertProductType(HashMap<String, Object> type);
+
+	
+	/**
+	 * 获取指定品类分类的子分类集合
+	 * @param searchCondition 
+	 * @param productType ,searchCondition
+	 * @param List
+	 * @return
+	 */
+	List<ProductType> getChildList(@Param(value="startId") String startId,@Param(value="endId") String endId,@Param(value="searchCondition") String searchCondition);
+
+	/**
+	 * 获取指定商品品类的分类信息
+	 * @param productType
+	 * @return
+	 */
+	ProductType getProductType(@Param(value="productType") int productType);
+
+	/**更新商品品类信息
+	 * @param type
+	 */
+	void updateProductType(HashMap<String, Object> type);
+
+
+	/**
+	 * 根据二级或三级品类获取关联的品牌和供应商id集合
+	 * @param productType
+	 * @return
+	 */
+	List<HashMap<String, Object>> querySupBraList(@Param(value="queryCondition") String queryCondition);
+
+}

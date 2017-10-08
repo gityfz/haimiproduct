@@ -1,0 +1,406 @@
+package com.intelligence.business.product.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.intelligence.business.base.service.ICodeNameService;
+import com.intelligence.business.price.service.IPriceInterfaceService;
+import com.intelligence.business.product.dao.IProductDao;
+import com.intelligence.business.product.entity.Product;
+import com.intelligence.business.product.service.IProductService;
+import com.intelligence.common.cache.MemcacheTools;
+import com.intelligence.common.constant.StringCon;
+import com.intelligence.common.exception.PowerException;
+
+@Service
+public class ProductServiceImpl implements IProductService {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory
+			.getLogger(ProductServiceImpl.class);
+
+	/**
+	 * memcache工具
+	 */
+	@Resource
+	private MemcacheTools memcacheTools;
+	
+	/**
+	 * 键值映射服务层
+	 */
+	@Resource
+	private ICodeNameService iCodeNameService;
+	
+	/**
+	 * 价格服务接口层
+	 */
+	@Resource
+	private IPriceInterfaceService iPriceInterfaceService;
+	
+	/**
+	 * 商品DAO
+	 */
+	@Resource
+	private IProductDao iProductDao;
+
+	public Integer addProduct(HashMap<String, Object> productParam)
+			throws PowerException {
+		try {
+			// 获取当前时间
+			Date currentTime = new Date();
+
+			// 新增详情
+			HashMap<String, Object> productDetail = new HashMap<String, Object>();
+			productDetail.put("detail", productParam.get("detail"));
+			productDetail.put("addTime", currentTime);
+			Integer detailId = iProductDao.addDetail(productDetail);
+			productDetail = null;
+			productParam.remove("detail");
+
+			// 新增商品
+			// 判断是否置顶
+			if (null != productParam.get("isTop")) {
+				productParam.put("setTime", currentTime);
+			}
+			productParam.put("detailId", detailId);
+			productParam.put("addTime", currentTime);
+			return iProductDao.addProduct(productParam);
+
+		} catch (PowerException e) {
+			throw e;
+		}
+	}
+
+	/**
+	 * 商品详情查看
+	 */
+
+	@Override
+	public HashMap<String, Object> selectProduct(int productId) throws PowerException{
+		// TODO Auto-generated method stub
+		try {
+			return iProductDao.selectProduct(productId);
+		} catch (PowerException e) {
+			// TODO: handle exception
+			throw e;
+		}
+	}
+
+    /**
+     * 根据条件查询商品列表服务层
+     * @author zhengyf
+     */
+    public List<HashMap<String, Object>> queryByCondition(
+	    HashMap<String, Object> productConditionParam) throws PowerException {
+	try {
+	    return iProductDao.queryByCondition(productConditionParam);
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+    
+    /**
+	 * 获取商品信息
+	 * 
+	 * @param params
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<String, Object> getProductInfo(HashMap<String, Object> params) throws PowerException {
+//		try {
+//			// 第一步，判斷memcache是否連接成功
+//			boolean memConnFlag = memcacheTools.isConnected();
+//			
+//			// 第二步，根据memcache链接的成功与否以及是否是关键词查询来决定查询策略
+//			if (!memConnFlag) {
+//				// 第一子步，memcache完全失效，走DB	
+//			} else if (memConnFlag && null != params.get("keyword")) {
+//				// 第二子步，memcache没有失效，有关键词查询，走被动缓存				
+//			} else {
+//				// 第三子步，其他查询条件，完全走缓存				
+//				
+//			}
+//			
+//			
+//			
+//			
+//			
+//			
+//			
+//		} catch (PowerException e) {
+//		    throw e;
+//		}
+		
+		return null;
+	}
+    
+	/**
+	 * 获取商品数据
+	 * 
+	 * 
+	 * @param productIds
+	 * @return
+	 * @throws PowerException
+	 */
+	@SuppressWarnings("unchecked")
+	public ArrayList<Object> queryProductData(ArrayList<Integer> productIds) throws PowerException {
+		try {
+			
+			// 分析商品ID区间
+		    HashMap<String, ArrayList<Integer>> rangMap = new HashMap<String, ArrayList<Integer>>();
+		    HashSet<String> rangSet = new HashSet<String>();
+		    for (int i = 0, l = productIds.size(); i < l; i++) {
+		    	HashMap<String, Integer> mapRange = iCodeNameService.getCodeNameRange(productIds.get(i));
+		    	StringBuffer sbTmp = new StringBuffer();
+		    	sbTmp.append(mapRange.get("start"));
+		    	sbTmp.append(StringCon.HK.getValue());
+		    	sbTmp.append(mapRange.get("end"));
+		    	rangSet.add(sbTmp.toString());
+		    	if (null == rangMap.get(sbTmp)) {
+		    		rangMap.put(sbTmp.toString(), new ArrayList<Integer>());
+		    		rangMap.get(sbTmp.toString()).add(productIds.get(i));
+		    	} else {
+		    		rangMap.get(sbTmp.toString()).add(productIds.get(i));
+		    	}
+		    }
+		    
+		    // 初始化返回结果
+		    ArrayList<Object> result = new ArrayList<Object>();
+		    
+		    // 根据memcache的读取状况，来确定有多少商品区间需要取缓存
+		    HashSet<String> emptySet = new HashSet<String>();
+		    Iterator<String> rangeIt = rangSet.iterator();
+		    StringBuffer proKey = null;
+		    while(rangeIt.hasNext()) {
+		    	proKey = new StringBuffer("productData");
+		    	proKey.append(rangeIt.next());
+		    	// TODO
+		    	HashMap<String, Object> memData = (HashMap<String, Object>) memcacheTools.getMemData(proKey.toString());
+		    	if (null == memData) {
+		    		// 记录下来空值
+		    		emptySet.add(rangeIt.next());
+		    	} else {
+		    		// 直接取memcache数据
+		    		ArrayList<Integer> tmpProIds = rangMap.get(rangeIt.next());
+		    		for (int j = 0, l = tmpProIds.size(); j < l; j++) {
+		    			result.add(memData.get(tmpProIds.get(j).toString()));
+		    		}
+		    	}
+		    }
+		    
+		    // 分析空值，酌情取DB
+		    ArrayList<Integer> idsList = new ArrayList<Integer>();
+		    Integer idsCount = 0;
+		    Integer rangeCount = emptySet.size();
+		    Integer rangeTotalCount = emptySet.size() * 50;
+		    Iterator<String> emptyIt = emptySet.iterator();
+		    while(emptyIt.hasNext()) {
+		    	idsCount += rangMap.get(emptyIt.next()).size();
+		    	idsList.addAll(rangMap.get(emptyIt.next()));
+		    }
+		    if (idsCount < rangeCount || idsCount * 3 < rangeTotalCount
+		    		|| 3 < rangeTotalCount) {
+		    	// 使用ids取db，每200个取一批
+		    	HashMap<String, Object> productParam = new HashMap<String, Object>();
+		    	for (int i = 0, l = (int) Math.ceil(idsList.size() / 200); i < l; i++) {
+		    		productParam.put("ids", idsList.subList(i * 200, (i + 1) * 200));
+			    	// TODO
+			    	result.addAll(iProductDao.queryProductData(productParam));	
+		    	}
+		    	
+		    } else {
+		    	// 使用范围取db
+		    	HashMap<String, Object> productParam = new HashMap<String, Object>();
+		    	while(emptyIt.hasNext()) {
+		    		String[] rangTmp = emptyIt.next().split(StringCon.HK.getValue());
+		    		productParam.put("start", rangTmp[0]);
+		    		productParam.put("end", rangTmp[1]);
+			    	// TODO
+			    	result.addAll(iProductDao.queryProductData(productParam));
+		    	}
+		    }
+		    
+		    // 返回结果
+		    return result;
+		} catch (PowerException e) {
+		    throw e;
+		}
+	}
+    
+    public void generateProductIndexesAndPrice(HashMap<String, Object> param) throws PowerException {
+    	
+    	// 做价格排序索引，最难，最终价格都是实时取的，每10分钟一次
+    	
+    	// 获取通用索引
+    	// 初始化国家索引
+    	HashMap<Integer, ArrayList<Integer>> productCountryIndexTmp = new HashMap<Integer, ArrayList<Integer>>();
+    	// 初始化供应商索引
+    	HashMap<Integer, ArrayList<Integer>> productSupplierIndexTmp = new HashMap<Integer, ArrayList<Integer>>();
+    	// 初始化品类索引
+    	HashMap<String, ArrayList<Integer>> productTypeIndexTmp = new HashMap<String, ArrayList<Integer>>();
+    	// 初始化品牌索引
+    	HashMap<Integer, ArrayList<Integer>> productBrandIndexTmp = new HashMap<Integer, ArrayList<Integer>>();
+    	// 生成前台展示的主产品索引
+    	HashMap<String, Object> productIndexParam = new HashMap<String, Object>();
+    	productIndexParam.put("masterFlag", 1);
+    	Integer masterCount = iProductDao.queryProductIndexCount(productIndexParam);
+    	int countTmp = Math.round(masterCount / 1000);
+    	for (int i = 0; i < countTmp; i++) {
+    		productIndexParam.put("start", i * 1000);
+    		productIndexParam.put("limit", 1000);
+    		ArrayList<Product> productIndex = iProductDao.queryProductIndex(productIndexParam);
+    		for (int j = 0, l = productIndex.size(); j < l; j++) {
+    			// 生成国家索引
+        		if (null == productCountryIndexTmp.get(productIndex.get(j).getCountryId())) {
+        			productCountryIndexTmp.put(productIndex.get(j).getCountryId(), new ArrayList<Integer>(masterCount));
+        		}
+        		productCountryIndexTmp.get(productIndex.get(j).getCountryId()).add(productIndex.get(j).getProductId());
+            	// 生成供应商索引
+        		if (null == productSupplierIndexTmp.get(productIndex.get(j).getSupplierId())) {
+        			productSupplierIndexTmp.put(productIndex.get(j).getSupplierId(), new ArrayList<Integer>(masterCount));
+        		}
+        		productSupplierIndexTmp.get(productIndex.get(j).getSupplierId()).add(productIndex.get(j).getProductId());
+            	// 生成品类索引
+        		if (null == productTypeIndexTmp.get(productIndex.get(j).getProductType())) {
+        			productTypeIndexTmp.put(productIndex.get(j).getProductType(), new ArrayList<Integer>(masterCount));
+        		}
+        		productTypeIndexTmp.get(productIndex.get(j).getProductType()).add(productIndex.get(j).getProductId());
+            	// 生成品牌索引
+        		if (null == productBrandIndexTmp.get(productIndex.get(j).getBrandId())) {
+        			productBrandIndexTmp.put(productIndex.get(j).getBrandId(), new ArrayList<Integer>(masterCount));
+        		}
+        		productBrandIndexTmp.get(productIndex.get(j).getBrandId()).add(productIndex.get(j).getProductId());
+    		}
+    	}
+//    	Arrays.sort(a);
+//    	product_type,
+//		  supplier_id,
+//		  country_id,
+//		  brand_id
+    	
+    	// 生成国家索引
+    	
+    	// 生成仓库索引
+    	
+    	// 生成品类索引
+    	
+    	// 生成分类索引
+    	
+    	// 生成品牌索引
+    	
+    	// 生成供应商索引
+    	
+    	// 规格属性索引
+    	
+    	
+    	
+    }
+    
+    
+    
+     /**
+     * 新增商品分类映射关系记录
+     */
+    public Integer addProductCategory(HashMap<String, Object> Params)
+	    throws PowerException {
+	try {
+	    // 获取当前时间
+	    Date currentTime = new Date();
+	    Params.put("addTime", currentTime);
+	    // 新增商品
+	    return iProductDao.addProductCategory(Params);
+
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+
+    /**
+     * 查询商品分类映射关系记录
+     */
+    public List<Integer> selectProductCategory(Integer productId)
+	    throws PowerException {
+	try {
+	    // 新增商品
+	    return iProductDao.selectProductCategory(productId);
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+
+    /**
+     * 删除商品分类映射关系记录
+     */
+    public void deleteProductCategory(HashMap<String, Object> params)
+	    throws PowerException {
+	try {
+	    // 删除商品
+	    iProductDao.deleteProductCategory(params);
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+
+    /**
+     * 更新商品分类映射关系记录
+     */
+    @SuppressWarnings("unchecked")
+    public void updateProductCategory(HashMap<String, Object> params)
+	    throws PowerException {
+	try {
+	    // 更新商品
+	    Integer productId = Integer.valueOf(params.get("productId")
+		    .toString());
+
+	    // 更新列表
+	    List<Integer> updateList = (List<Integer>) params
+		    .get("categoryList");
+
+	    // 删除列表
+	    List<Integer> deleteList = new ArrayList<Integer>();
+
+	    List<Integer> categoryList = this.selectProductCategory(productId);
+	    // 遍历数据库中的映射关系和更新的映射关系
+	    for (Integer sqlCategoryId : categoryList) {
+		boolean deleteMark = true;
+		for (Iterator<Integer> it = updateList.iterator(); it.hasNext();) {
+		    Integer value = it.next();
+		    if (value.equals(sqlCategoryId)) {
+			deleteMark = false;
+			it.remove();
+		    }
+		}
+		if (deleteMark) {
+		    // 需要删除
+		    deleteList.add(sqlCategoryId);
+		}
+	    }
+	    // 完成不重复项的新增操作
+	    if (updateList != null & 0 < updateList.size()) {
+		params.replace("categoryList", updateList);
+		this.addProductCategory(params);
+	    }
+	    // 完成删除项的删除操作
+	    if (deleteList != null & 0 < deleteList.size()) {
+		params.replace("categoryList", deleteList);
+		this.deleteProductCategory(params);
+	    }
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+    
+    
+}

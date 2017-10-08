@@ -1,0 +1,206 @@
+package com.intelligence.business.price.dao.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.business.price.dao.IProductUserPriceDao;
+import com.intelligence.business.price.entity.ProductUserPrice;
+import com.intelligence.business.price.persistance.ProductUserPriceMapper;
+import com.intelligence.common.exception.ErrorCode;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+
+/**
+ * 商品用户价格DAO层
+ * 
+ * @author 004
+ *
+ */
+@Repository
+public class ProductUserPriceDaoImpl implements IProductUserPriceDao {
+	
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(ProductUserPriceDaoImpl.class);
+
+	/**
+	 * 商品用户价格映射
+	 */
+	@Resource
+	private ProductUserPriceMapper productUserPriceMapper;
+	
+	/**
+	 * 获取商品用户价格
+	 * 
+	 * @param pageParam
+	 * @return
+	 */
+	public ArrayList<ProductUserPrice> queryProductUserPrice(HashMap<String, Object> pageParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("获取商品用户价格数据", pageParam));
+        try {
+        	return productUserPriceMapper.queryProductUserPrice(pageParam);
+        } catch (Exception e) {
+        	throw new PowerException("获取商品用户价格数据异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 获取商品用户价格数量
+	 * 
+	 * @return
+	 */
+	public Integer queryProductUserPriceCount() throws PowerException {
+		logger.info(LogUtils.commonFormat("获取商品用户价格数量"));
+        try {
+        	return productUserPriceMapper.queryProductUserPriceCount();
+        } catch (Exception e) {
+        	throw new PowerException("获取商品用户价格数据异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 批量更新用户价格
+	 * 
+	 * @param userId
+	 * @param rate
+	 * @param countryId
+	 * @throws PowerException
+	 */
+	public void updateUserPrice(BigDecimal rate, Integer countryId) throws PowerException {
+		logger.info(LogUtils.commonFormat("批量更新用户价格"));
+        try {
+        	for (int i = 0; i < 10; i++) {
+        		// 队列使用，防止并发冲突，TODO
+        		
+        		productUserPriceMapper.updateUserPrice(i, rate, countryId);        		
+        	}
+        	queryProductUserPriceCount();
+        } catch (Exception e) {
+        	throw new PowerException("批量更新用户价格异常",
+        								ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+        }
+	}
+
+	/**
+	 * 获取用户价格配置数据
+	 * 
+	 * @param userId
+	 * @return
+	 * @throws PowerException
+	 */
+	public ArrayList<ProductUserPrice> getUserPriceConfig(Integer userId) throws PowerException {
+		logger.info(LogUtils.commonFormat("获取用户价格配置数据"));
+		try {
+        	return productUserPriceMapper.getUserPriceConfig(userId);
+        } catch (Exception e) {
+        	throw new PowerException("获取用户价格配置数据异常",
+					ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	
+	/**
+	 * 新增用户价格
+	 * 
+	 */
+	public Integer addUserPrice(HashMap<String, Object> params) throws PowerException{
+	    try{
+		logger.info(LogUtils.commonFormat("新增用户价格配置数据"));
+		productUserPriceMapper.addUserPrice(params);
+		//返回主键
+		return Integer.valueOf(params.get("id").toString());
+	    }catch(Exception e){
+		throw new PowerException("新增用户价格配置数据异常",
+			ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+	    }
+	    
+	}
+	
+	/**
+	 * 条件查询用户价格
+	 * 
+	 */
+	public ArrayList<ProductUserPrice> queryUserPriceByCondition(HashMap<String, Object> params) throws PowerException{
+	    try{
+		logger.info(LogUtils.commonFormat("条件查询用户价格配置数据"));
+		return productUserPriceMapper.queryUserPriceByCondition(params);
+	    }catch(Exception e){
+		throw new PowerException("条件查询用户价格配置数据异常",
+			ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+	    }
+	    
+	}
+	
+	/**
+	 * 删除用户价格
+	 * 
+	 */
+	public void deleteUserPrice(Integer productUserPriceId) throws PowerException{
+	    try{
+		logger.info(LogUtils.commonFormat("删除用户价格配置数据"));
+		productUserPriceMapper.deleteUserPrice(productUserPriceId);
+	    }catch(Exception e){
+		throw new PowerException("条件查询用户价格配置数据异常",
+			ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+	    }
+	    
+	}
+
+	/**
+	 * 更新用户价格
+	 * 
+	 */
+	public void updateProductUserPrice(HashMap<String,Object> params) throws PowerException{
+	    try{
+		logger.info(LogUtils.commonFormat("更新用户价格配置数据"));
+		productUserPriceMapper.updateProductUserPrice(params);
+	    }catch(Exception e){
+		throw new PowerException("条件查询用户价格配置数据异常",
+			ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+	    }
+	    
+	}
+
+	
+	
+//	 @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+//	public boolean testDelete(String jobCode) throws Exception {
+//	      boolean flag = false;
+//	      ServletContext servletContext = httpRequest.getSession().getServletContext();
+//	        ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+//	      //1.获取事务控制管理器
+//	      DataSourceTransactionManager transactionManager = context.getBean(
+//	           "transactionManager", DataSourceTransactionManager.class);//这里是spring手动注入bean,也可以使用自动注入 HqznContext是一个工具类:主要用于简化spring手动注入代码
+//	      //2.获取事务定义
+//	      DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+//	      //3.设置事务隔离级别，开启新事务
+//	      def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+//	      //4.获得事务状态
+//	      TransactionStatus status = transactionManager.getTransaction(def);
+//	      try {
+//	        //5.具体的数据库操作（多个）
+//	        BOBaseJob r = new BOBaseJob();
+//	        r.setJobCode("SW001");
+//	        r.setJobName("事务001");
+//	        BOBaseJobMapper.deleteByPrimaryKey(jobCode);
+//	        BOBaseJobMapper.insert(r);
+//	        flag = true;
+//	        transactionManager.commit(status);
+//	      } catch (Exception e) {
+//	        transactionManager.rollback(status);
+//	      }
+//	      return flag;
+//	   }
+	
+}

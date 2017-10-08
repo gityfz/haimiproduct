@@ -1,0 +1,28 @@
+package com.intelligence.business.price.persistance;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+/**
+ * 定时刷新汇率
+ * @author 作者 E-mail: bzp
+ * @date 创建时间：2017年1月10日 下午4:05:01
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+public interface PriceRateMapper {
+
+	@Select("select country_id from currency_rate")
+	public List<Object> SelectRate();
+
+	@Update("update currency_rate set currency_rate = #{currency_rate} WHERE currency_flag = #{fromCurrency}")
+	void updateRate(@Param("currency_rate") BigDecimal currency_rate,
+			@Param("fromCurrency") String fromCurrency);
+
+}

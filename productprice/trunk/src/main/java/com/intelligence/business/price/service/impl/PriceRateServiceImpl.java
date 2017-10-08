@@ -1,0 +1,168 @@
+package com.intelligence.business.price.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.intelligence.business.price.dao.IPriceRateDao;
+import com.intelligence.business.price.dao.IProductUserPriceDao;
+import com.intelligence.business.price.entity.CurrencyRate;
+import com.intelligence.business.price.service.IPriceRateService;
+import com.intelligence.common.cache.MemcacheTools;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+import com.intelligence.common.utils.RateUtils;
+
+/**
+ * 定时刷新汇率
+ * @author 作者 E-mail:bzp
+ * @date 创建时间：2017年1月10日 下午8:29:07
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+@Service
+public class PriceRateServiceImpl implements IPriceRateService {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(PriceRateServiceImpl.class);
+	
+	/**
+	 * memcache工具
+	 */
+	@Resource
+	private MemcacheTools memcacheTools;
+	
+	/**
+	 * 价格汇率dao层
+	 */
+	@Resource
+	private IPriceRateDao iPriceRatedao;
+	
+	/**
+	 * 用户价格dao层
+	 */
+	@Resource
+	private IProductUserPriceDao iProductUserPriceDao;
+	
+	/**
+	 * 获取当前汇率
+	 * 
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<String, Object> getCurrentRate() throws PowerException {
+		try {
+			// 初始化返回結果
+			HashMap<String, Object> result = new HashMap<String, Object>();
+			HashMap<String, BigDecimal> rateResult = new HashMap<String, BigDecimal>();
+			// 首先从表里获取需要取汇率的国家
+			ArrayList<CurrencyRate> currencyList = iPriceRatedao.queryCurrencyRate();
+			// 循环调用接口获取汇率
+			for (int i = 0, l = currencyList.size(); i < l; i++) {
+				CurrencyRate currencyRate = currencyList.get(i);
+				// 调用接口获取汇率
+				BigDecimal tmpRate = RateUtils.getCurrentCurrency(currencyRate.getCurrencyFlag(), RateUtils.getCurrencyCny());
+				// 填充汇率
+				if (null != tmpRate) {
+					rateResult.put(currencyRate.getCurrencyFlag(), tmpRate);
+				}
+			}
+			
+			// 整合结果
+			result.put("rateResult", rateResult);
+			result.put("dbResult", currencyList);
+			
+			// 返回结果
+			return result;	
+		} catch(PowerException e) {
+			throw e;
+		}
+	}
+	
+	/**
+	 * 根据国家获取汇率
+	 * 
+	 * @param countryId
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<Integer, BigDecimal> getRateByCountry() throws PowerException {
+		try {
+			HashMap<Integer, BigDecimal> result = new HashMap<Integer, BigDecimal>();
+			
+			ArrayList<CurrencyRate> memData = (ArrayList<CurrencyRate>) memcacheTools.getMemData("currencyrate");
+			if (null == memData) {
+				// 首先从表里获取需要取汇率的国家
+				memData = iPriceRatedao.queryCurrencyRate();
+				// 设置缓存
+				memcacheTools.setMemData("currencyrate", 7200, memData);
+			}
+			
+			
+			for (int i = 0, l = memData.size(); i < l; i++) {
+				result.put(memData.get(i).getCountryId(), memData.get(i).getCurrencyRate());
+			}
+			
+			// 返回结果
+			return result;	
+		} catch(PowerException e) {
+			throw e;
+		}
+	}
+	
+	/**
+	 * 刷新汇率
+	 * 
+	 * @throws PowerException
+	 */
+	public void refreshCurrentRate() throws PowerException {
+		try {
+			// 获取汇率集合
+			HashMap<String, Object> rateList = this.getCurrentRate();
+			
+			// 记录汇率日志
+			if (logger.isInfoEnabled()) {
+				logger.info(LogUtils.commonFormat("记录当前系统和外网货币汇率", rateList));				
+			}
+			
+			// 批量更新汇率和批量刷新临时表价格
+			@SuppressWarnings("unchecked")
+			ArrayList<CurrencyRate> currencyRateList = (ArrayList<CurrencyRate>)rateList.get("dbResult");
+			@SuppressWarnings("unchecked")
+			HashMap<String, BigDecimal> rateResult = (HashMap<String, BigDecimal>)rateList.get("rateResult");
+			ArrayList<HashMap<String, Object>> rateData = new ArrayList<HashMap<String, Object>>();
+			HashMap<String, Object> rateDataTmp = null;
+			for (int i = 0, l = currencyRateList.size(); i < l; i++) {
+				if (null != rateResult.get(currencyRateList.get(i).getCurrencyFlag())) {
+					// 刷新用户价格汇率
+					iProductUserPriceDao.updateUserPrice(rateResult.get(currencyRateList.get(i).getCurrencyFlag()), currencyRateList.get(i).getCountryId());
+					// 添加汇率更新数据
+					rateDataTmp = new HashMap<String, Object>();
+					rateDataTmp.put("id", currencyRateList.get(i).getCurrencyRateId());
+					rateDataTmp.put("currency_rate", rateResult.get(currencyRateList.get(i).getCurrencyFlag()));
+					rateData.add(rateDataTmp);
+					// 添加缓存数据
+					currencyRateList.get(i).setCurrencyRate(rateResult.get(currencyRateList.get(i).getCurrencyFlag()));
+				}
+			}
+			if (null != rateData) {
+				iPriceRatedao.updateCurrencyRateBatch(rateData);			
+			}
+			// 设置缓存
+			memcacheTools.setMemData("currencyrate", 7200, currencyRateList);
+		} catch(PowerException e) {
+			throw e;
+		}
+	}
+
+}

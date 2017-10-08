@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  	<display-name>productprice</display-name>
+  
+	<context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>Productprice.root</param-value>
+	</context-param>
+	<!-- 旧式配法
+	<context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>classpath*:log/log4j.properties</param-value>
+	</context-param> -->
+	<!-- 新式配法 -->
+	<context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>classpath:log/log4j.xml</param-value>
+	</context-param> 
+	
+	<!-- 监听Log4j -->
+	<listener>
+	   <listener-class>
+	    org.springframework.web.util.Log4jConfigListener
+	   </listener-class>
+	</listener>
+  
+  	<!-- 配置spring监听器start classpath*:spring/spring-mvc.xml -->
+  	<context-param>
+		<param-name>contextConfigLocation</param-name>
+			<param-value>
+	    		classpath*:spring/spring-mvc.xml
+	    	</param-value>
+  	</context-param>
+  	
+  	<!-- spring生产  测试  开发版本配置 maven 用??? 查找顺序是：先进性明确激活的匹配，如果没有指定明确激活的（即集合为空）就找默认的；配置属性值从Environment读取。  -->
+	<context-param>
+        <param-name>spring.profiles.active</param-name> <!-- 也可用spring.profiles.default -->  
+        <param-value>production</param-value>  <!-- ${profile.spring} ??? -->
+    </context-param>
+	<listener>
+	    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+    <!-- 配置spring监听器end -->
+    
+    <!-- 防止spring内存溢出监听器 -->
+	<listener>
+		<listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+	</listener>
+  
+    <!-- 配置spring servlet start -->
+	<servlet>
+		<description>spring mvc servlet</description>
+	    <servlet-name>productprice</servlet-name>
+	    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	    <init-param>
+	        <description>加载/WEB-INF/spring/目录下的所有servlet-开头的XML作为Spring MVC的配置文件</description>
+	        <param-name>contextConfigLocation</param-name>
+	        <param-value>classpath*:spring/servlet-*.xml</param-value>   <!-- /WEB-INF/spring-mvc/*.xml -->
+	    </init-param>
+	    <load-on-startup>1</load-on-startup>
+	</servlet>
+	<!-- 表示哪些请求交给Spring Web MVC处理， “/” 是用来定义默认servlet映射的。也可以如“*.html”表示拦截所有以html为扩展名的请求 -->
+	<servlet-mapping>
+	    <servlet-name>productprice</servlet-name>
+	    <url-pattern>/</url-pattern>
+	</servlet-mapping>  
+  	<!-- 配置spring servlet end -->
+  	
+  	<!-- 编码过滤器start -->
+  	<filter>
+	    <filter-name>characterEncodingFilter</filter-name>
+	    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+	    <init-param>
+	        <param-name>encoding</param-name>
+	        <param-value>UTF-8</param-value>
+	    </init-param>
+	    <init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	 
+	<filter-mapping>
+	    <filter-name>characterEncodingFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
+    <!-- 编码过滤器end -->
+    
+    <!-- 配置session超时时间，单位分钟 -->
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+  
+  
+	<!-- <welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	    <welcome-file>index.htm</welcome-file>
+	    <welcome-file>index.jsp</welcome-file>
+	    <welcome-file>default.html</welcome-file>
+	    <welcome-file>default.htm</welcome-file>
+	    <welcome-file>default.jsp</welcome-file>
+	</welcome-file-list> -->
+</web-app>

@@ -1,0 +1,19 @@
+package com.intelligence.business.price.service;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+
+/**
+ * 定时刷新汇率
+ * @author 作者 E-mail:bzp
+ * @date 创建时间：2017年1月10日 下午8:25:03
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+public interface PriceRateService {
+	public void obtainRate(String fromCurrency) throws IOException;
+
+	public void Currency();
+}

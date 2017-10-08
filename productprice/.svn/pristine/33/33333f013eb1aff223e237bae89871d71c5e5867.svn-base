@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.ProductMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  	<!-- 新增产品 -->	
+  	<insert id="insertProduct" useGeneratedKeys="true" keyProperty="productId" parameterType="java.util.HashMap">   
+    	INSERT INTO product
+            (product_type, 
+            product_name,
+            <if test="productNameEn != null"> 
+            product_name_en, 
+            </if>
+            <if test="barcode != null">
+            barcode,
+            </if> 
+            unit, 
+            head_img, 
+            supplier_id, 
+            country_id, 
+            brand_id,
+            weight, 
+            check_flag, 
+            is_top, 
+            <if test="setTime != null">
+            set_time, 
+            </if>
+            master_flag, 
+            detail_id,
+            sell_limit, 
+            uni_purchase_price,
+            uni_refer_price,
+            <if test="rateBal != null">
+            rate_bal, 
+            </if>
+            <if test="priceBal != null">
+            price_bal, 
+            </if>
+            group_flag, 
+            add_time)
+		VALUES (
+			#{productType}, 
+			#{productName}, 
+			<if test="productNameEn != null">
+			#{productNameEn},
+			</if> 
+			<if test="barcode != null">
+			#{barcode}, 
+			</if>
+			#{unit}, 
+			#{headImg}, 
+			#{supplierId}, 
+			#{countryId},
+        	#{brandId}, 
+        	#{weight}, 
+        	#{checkFlag}, 
+        	#{isTop}, 
+        	<if test="setTime != null">
+        	#{setTime}, 
+        	</if>
+        	#{masterFlag}, 
+        	#{detailId}, 
+        	#{sellLimit},
+        	#{uniPurchasePrice},
+        	#{uniReferPrice},
+        	<if test="rateBal != null"> 
+        	#{rateBal},
+        	</if>
+        	<if test="priceBal != null">
+        	#{priceBal},
+        	</if> 
+        	#{groupFlag}, 
+        	#{addTime});   
+	</insert>
+	
+	<!-- 新增明细 -->	
+  	<insert id="insertDetail" useGeneratedKeys="true" keyProperty="detailId" parameterType="java.util.HashMap">   
+    	INSERT INTO detail (detail,add_time) VALUES (#{detail},#{addTime});   
+	</insert>
+	
+	
+	
+	 <!-- 商品列表自定义resultMap -->
+	 <resultMap id="queryByConditionMap" type="java.util.HashMap">  
+	       <id column="id" property="productId" jdbcType="INTEGER"/>  
+	       <result column="product_type" property="productType" jdbcType="VARCHAR"/>  
+	       <result column="product_name" property="productName" jdbcType="VARCHAR"/>  
+	       <result column="product_name" property="productName" jdbcType="VARCHAR"/>  
+	       <result column="product_name_en" property="productNameEn" jdbcType="VARCHAR"/>  
+	       <result column="county_id" property="countyId" jdbcType="INTEGER"/>  
+	       <result column="supplier_id" property="supplierId" jdbcType="INTEGER"/>  
+	       <result column="brand_id" property="brandId" jdbcType="INTEGER"/>
+	       <result column="check_flag" property="checkFlag" jdbcType="INTEGER"/>
+	       <result column="is_top" property="isTop" jdbcType="INTEGER"/>
+	       <result column="set_time" property="setTime" jdbcType="DATE"/>
+	       <result column="master_flag" property="masterFlag" jdbcType="INTEGER"/>
+	       <result column="detail_id" property="detailId" jdbcType="INTEGER"/>
+	       <result column="sell_num" property="sellNum" jdbcType="INTEGER"/>
+	       <result column="sell_limit" property="sellLimit" jdbcType="INTEGER"/>
+	       <result column="uni_purchase_price" property="uniPurchasePrice" jdbcType="DECIMAL"/>
+	       <result column="uni_refer_price" property="uniReferPrice" jdbcType="DECIMAL"/>
+	       <result column="rate_bal" property="rateBal" jdbcType="INTEGER"/>
+	       <result column="price_bal" property="priceBal" jdbcType="DECIMAL"/>
+	       <result column="group_flag" property="groupFlag" jdbcType="INTEGER"/>
+	       <result column="del_flag" property="delFlag" jdbcType="INTEGER"/>
+	       <result column="add_time" property="addTime" jdbcType="DATE"/>
+	       <result column="update_time" property="updateTime" jdbcType="DATE"/>
+	   </resultMap>  
+	
+	
+	
+	<!-- 根据条件查询商品列表 -->
+	<select id="queryByCondition"  resultMap="queryByConditionMap" parameterType="java.util.HashMap">   
+    	SELECT p.* from product p 
+    	<if test="depotId != null">
+    	LEFT JOIN product_depot d on p.id = d.product_id 
+    	</if>
+    	<if test="categoryName != null">
+    	LEFT JOIN product_category c on p.id = c.product_id 
+    	</if>
+    	<if test="productTypeName != null">
+    	LEFT JOIN product_type t on p.product_type = t.product_type 
+    	</if>
+    	<if test="brandName != null">
+    	LEFT JOIN brand b on p.brand_id = b.id 
+    	</if>
+    	WHERE 1=1
+    	<if test="productName != null">
+    	and  p.product_name like  CONCAT(CONCAT('%', #{productName}), '%')
+    	</if>
+    	<if test="productNameEn != null">
+    	and  p.product_name_en like CONCAT(CONCAT('%', #{productNameEn}), '%')
+    	</if>
+    	<if test="countyId != null">
+    	and  p.country_id =  #{countyId}
+    	</if>
+    	<if test="brandName != null">
+    	and  b.brand_name =  #{brandName}
+    	and b.del_flag = 0 
+    	</if>
+    	<if test="depotId != null">
+    	and  d.depot_id =  #{depotId}
+    	and  d.del_flag = 0
+    	</if>
+    	<if test="categoryName != null">
+    	and  c.category_name =  #{categoryName}
+    	and  c.del_flag = 0
+    	</if>
+    	<if test="productTypeName != null">
+    	and  t.product_type_name =  #{productTypeName}
+    	and  t.del_flag = 0
+    	</if>
+    	<if test="checkFlag != null">
+    	and  p.check_flag =  #{checkFlag}
+    	</if>
+    	and  p.del_flag = 0
+    	LIMIT #{start},#{limit}
+	</select>
+	
+  
+</mapper>

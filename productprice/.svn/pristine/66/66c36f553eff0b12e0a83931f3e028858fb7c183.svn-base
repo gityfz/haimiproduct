@@ -1,0 +1,17 @@
+package com.intelligence.business.product.service;
+
+import java.util.HashMap;
+
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductBrandService {
+
+	/**
+	 * 新增品牌
+	 * 
+	 * @param brandParam
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer addProductBrand(HashMap<String, Object> brandParam) throws PowerException;
+}

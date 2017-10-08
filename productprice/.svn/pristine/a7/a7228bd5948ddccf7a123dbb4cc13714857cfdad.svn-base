@@ -1,0 +1,187 @@
+package com.intelligence.business.product.dao.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.business.product.dao.IProductDao;
+import com.intelligence.business.product.entity.Product;
+import com.intelligence.business.product.persistance.ProductMapper;
+import com.intelligence.common.exception.ErrorCode;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+
+@Repository
+public class ProductDaoImpl implements IProductDao {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory
+			.getLogger(ProductDaoImpl.class);
+
+	@Resource
+	private ProductMapper productMapper;
+
+	/**
+	 * 新增一条商品
+	 * 
+	 * @param product
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer addProduct(HashMap<String, Object> product)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("新增一条产品", product));
+		try {
+			// 新增商品
+			productMapper.insertProduct(product);
+
+			// 返回主键
+			return Integer.valueOf(product.get("productId").toString());
+		} catch (Exception e) {
+			throw new PowerException("新增商品价格中心产品异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+
+	/**
+	 * 新增详情
+	 * 
+	 * @throws PowerException
+	 */
+	public Integer addDetail(HashMap<String, Object> detail)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("新增一条详情"));
+		try {
+			// 新增详情
+			productMapper.insertDetail(detail);
+			// 返回主键
+			return Integer.valueOf(detail.get("detailId").toString());
+		} catch (Exception e) {
+			throw new PowerException("新增商品价格中心详情异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+	
+	/**
+	 * 更新详情信息
+	 * 
+	 * @throws PowerException
+	 */
+	public Integer updateDetail(HashMap<String, Object> detail)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("更新一条详情"));
+		try {
+			// 新增详情
+			productMapper.updateDetail(detail);
+			// 返回主键
+			return Integer.valueOf(detail.get("detailId").toString());
+		} catch (Exception e) {
+			throw new PowerException("新增商品价格中心详情异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+
+
+	/**
+	 * 商品详情查看
+	 * 
+	 * @return
+	 */
+	@Override
+	public HashMap<String, Object> selectProduct(int productId) {
+		// 日志
+		logger.info(LogUtils.commonFormat("查看商品详情"));
+		try {
+			return productMapper.selectProduct(productId);
+		} catch (Exception e) {
+			// TODO: handle exception
+			throw e;
+		}
+	}
+
+
+	/**
+	 * 根据条件获取商品列表
+	 * 
+	 * @param productConditionParam
+	 * @return List<HashMap<String, Object>> 商品列表
+	 * @throws PowerException
+	 * @author zhengyf
+	 */
+	public List<HashMap<String, Object>> queryByCondition(
+		HashMap<String, Object> productConditionParam)
+		throws PowerException {
+	    // 日志
+            logger.info(LogUtils.commonFormat("根据条件查询商品列表"));
+            try {
+		List<HashMap<String,Object>> list = productMapper.queryByCondition(productConditionParam);
+	        return list;
+            } catch (Exception e) {
+		throw new PowerException("查询商品价格中心详情异常",
+			ErrorCode.ADD_FAIL.getErrorCode(), e);
+	    }
+	}
+	
+	/**
+	 * 获取商品数据
+	 * 
+	 * 
+	 * @param productParam
+	 * @return
+	 * @throws PowerException
+	 */
+	public ArrayList<Product> queryProductData(HashMap<String, Object> productParam) throws PowerException {
+        logger.info(LogUtils.commonFormat("获取键值商品数据", productParam));
+        try {
+        	return productMapper.queryProductData(productParam);
+        } catch (Exception e) {
+        	throw new PowerException("获取键值商品数据异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 获取商品索引数据数量
+	 * 
+	 * @param productParam
+	 * @return
+	 */
+	public Integer queryProductIndexCount(HashMap<String, Object> productParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("获取商品索引数据数量", productParam));
+        try {
+        	return productMapper.queryProductIndexCount(productParam);
+        } catch (Exception e) {
+        	throw new PowerException("获取商品索引数据数量异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 获取商品索引数据
+	 * 
+	 * 
+	 * @param productParam
+	 * @return
+	 */
+	public ArrayList<Product> queryProductIndex(HashMap<String, Object> productParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("获取商品索引数据", productParam));
+        try {
+        	return productMapper.queryProductIndex(productParam);
+        } catch (Exception e) {
+        	throw new PowerException("获取商品索引数据异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+
+}

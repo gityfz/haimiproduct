@@ -1,0 +1,5 @@
+package com.intelligence.business.product.dao;
+
+public interface IProductDao {
+
+}

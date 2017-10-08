@@ -1,0 +1,15 @@
+package com.intelligence.business.product.dao.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.intelligence.business.product.dao.IProductDao;
+
+public class ProductDaoImpl implements IProductDao {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(ProductDaoImpl.class);
+	
+}

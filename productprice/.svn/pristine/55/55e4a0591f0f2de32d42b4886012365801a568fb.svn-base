@@ -1,0 +1,107 @@
+package com.intelligence.business.price.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.intelligence.business.price.dao.IProductUserPriceDao;
+import com.intelligence.business.price.entity.ProductUserPrice;
+import com.intelligence.business.price.service.IProductUserPriceService;
+import com.intelligence.common.cache.MemcacheTools;
+import com.intelligence.common.constant.MemcacheConstant;
+import com.intelligence.common.exception.PowerException;
+
+@Service
+public class ProductUserPriceServiceImpl implements IProductUserPriceService {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(ProductUserPriceServiceImpl.class);
+	
+	/**
+	 * memcache工具
+	 */
+	@Resource
+	private MemcacheTools memcacheTools;
+	
+	/**
+	 * 商品用户价格DAO层
+	 */
+	@Resource
+	private IProductUserPriceDao iProductUserPriceDao;
+	
+	/**
+	 * 获取商品用户价格
+	 * 
+	 * @param pageParam
+	 * @return
+	 */
+	public ArrayList<ProductUserPrice> queryProductUserPrice(HashMap<String, Object> pageParam) throws PowerException {
+        try {
+        	return iProductUserPriceDao.queryProductUserPrice(pageParam);
+        } catch (PowerException e) {
+        	throw e;
+        }
+	}
+	
+	/**
+	 * 获取商品用户价格数量
+	 * 
+	 * @return
+	 */
+	public Integer queryProductUserPriceCount() throws PowerException {
+        try {
+        	return iProductUserPriceDao.queryProductUserPriceCount();
+        } catch (PowerException e) {
+        	throw e;
+        }
+	}
+	
+	/**
+	 * 获取用户价格配置
+	 * 
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<String, ArrayList<ProductUserPrice>> getUserPriceConfig(Integer userId) throws PowerException {
+		try {
+			StringBuffer memKey = new StringBuffer(MemcacheConstant.USER_PRICE_CONFIG);
+			memKey.append(userId);
+			@SuppressWarnings("unchecked")
+			HashMap<String, ArrayList<ProductUserPrice>> memData = (HashMap<String, ArrayList<ProductUserPrice>>)memcacheTools.getMemData(memKey.toString());
+			if (null == memData) {
+				memData = new HashMap<String, ArrayList<ProductUserPrice>>();
+				ArrayList<ProductUserPrice> configList = iProductUserPriceDao.getUserPriceConfig(userId);
+				HashMap<Integer, String> configTmp = new HashMap<Integer, String>();
+				configTmp.put(0, "global");
+				configTmp.put(1, "country");
+				configTmp.put(2, "depot");
+				configTmp.put(3, "productType");
+				configTmp.put(4, "productId");
+				for (int i = 0, l = configList.size(); i < l; i++) {
+					String tmpKey = configTmp.get(configList.get(i).getContentType());
+					if (null == memData.get(tmpKey)) {
+						memData.put(tmpKey, new ArrayList<ProductUserPrice>());
+					}
+					memData.get(tmpKey).add(configList.get(i));		
+				}
+			}
+			
+        	return memData;
+        } catch (PowerException e) {
+        	throw e;
+        }
+	}
+	
+	public void updatePriceIndex() throws PowerException {
+		
+	}
+	
+}

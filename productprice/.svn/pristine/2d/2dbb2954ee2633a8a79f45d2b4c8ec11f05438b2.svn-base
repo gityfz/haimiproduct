@@ -1,0 +1,22 @@
+package com.intelligence.business.base.dao;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.intelligence.business.product.entity.ProductBrand;
+import com.intelligence.common.exception.PowerException;
+
+public interface ICodeNameDao {
+
+	/**
+	 * 获取品牌编码名称键值对
+	 * 
+	 * 
+	 * @param param
+	 * @return
+	 * @throws PowerException 
+	 */
+	public ArrayList<ProductBrand> getBrandCodeName(HashMap<String, Integer> param) throws PowerException;
+	
+	
+}

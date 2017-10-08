@@ -1,0 +1,71 @@
+package com.intelligence.autodev.dao.impl;
+
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.autodev.dao.FileUploadDao;
+import com.intelligence.autodev.persistance.UploadMapper;
+
+@Repository
+public class FileUploadImpl implements FileUploadDao{
+
+	@Resource
+	private UploadMapper uploadMapper;
+	int maxId =0;
+	public void fileUpload() {
+		if(!(0<=uploadMapper.getMaxId())){
+			maxId = uploadMapper.getMaxId();
+		    maxId++;
+		}else{
+			maxId = 0;
+		}
+		
+		
+	}
+	@Override
+	public void fileUpload(int id, String name, String path,String w,String h ,String t) {
+		uploadMapper.insertUpload(id, name, path,w,h,t);
+	}
+	
+	public Integer getMaxId() {
+		return uploadMapper.getMaxId();
+	}
+	
+	public String getFileName(int id) {
+		String name=null;
+		Map<String,Object> map = uploadMapper.getUploadMap(id);
+		for(Entry<String, Object> entry:map.entrySet()){
+			if("name".equals(entry.getKey())){
+				name = entry.getValue().toString();
+			}
+		}
+		if(name!=null){
+			return name;
+		}else
+			return null;
+	}
+
+	public String getPathName(int id) {
+		String path=null;
+		Map<String,Object> map = uploadMapper.getUploadMap(id);
+		for(Entry<String, Object> entry:map.entrySet()){
+			if("path".equals(entry.getKey())){
+				path = entry.getValue().toString();
+			}
+		}
+		if(path!=null){
+			return path;
+		}else
+			return null;
+	}
+	
+	public Map<String, Object> getFileCase(int id) {
+		
+		return uploadMapper.getUploadMap(id);
+	}
+	
+}

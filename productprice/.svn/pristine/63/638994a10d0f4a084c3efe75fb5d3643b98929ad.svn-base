@@ -1,0 +1,82 @@
+package com.intelligence.business.product.dao.impl;
+
+import java.util.HashMap;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.business.product.dao.IProductBrandDao;
+import com.intelligence.business.product.entity.ProductBrand;
+import com.intelligence.business.product.persistance.ProductBrandMapper;
+import com.intelligence.common.exception.ErrorCode;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+
+@Repository
+public class ProductBrandDaoImpl implements IProductBrandDao{
+	
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(ProductBrandDaoImpl.class);
+	
+	@Resource
+	private ProductBrandMapper productBrandMapper;
+	
+	/**
+	 * 新增一个品牌
+	 * 
+	 * @param brand
+	 * @return
+	 */
+	public Integer addProductBrand(HashMap<String, Object> brand) throws PowerException{
+		// 日志
+		logger.info(LogUtils.commonFormat("新增一条品牌", brand));
+		try {
+		    // 新增品牌
+		    productBrandMapper.insertProductBrand(brand);
+		    // 返回主键
+		    return Integer.valueOf(brand.get("brandId").toString());
+		} catch (Exception e) {
+		    throw new PowerException("新增商品价格中心品牌异常",
+			    ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+
+	/**
+	 * 根据品牌id获取品牌记录
+	 */
+	@Override
+	public ProductBrand selectBrandById(int id) throws PowerException {
+	 // 日志
+	 		logger.info(LogUtils.commonFormat("根据id查询品牌信息", id));
+	 		try {
+	 		    // 返回品牌查询结果
+	 		    return productBrandMapper.selectBrandById(id);
+	 		} catch (Exception e) {
+	 		    throw new PowerException("查询商品价格中心品牌异常",
+	 			    ErrorCode.ADD_FAIL.getErrorCode(), e);
+	 		}
+	}
+
+	/**
+	 * 更新品牌信息
+	 */
+	public Integer updateProductBrand(HashMap<String, Object> brandParam)
+		throws PowerException {
+	 // 日志
+		logger.info(LogUtils.commonFormat("更新品牌信息", brandParam));
+		try {
+		    // 更新品牌
+		    productBrandMapper.updateProductBrand(brandParam);
+		    return Integer.valueOf(brandParam.get("brandId").toString());
+		} catch (Exception e) {
+		    throw new PowerException("查询商品价格中心品牌异常",
+			    ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+	
+}

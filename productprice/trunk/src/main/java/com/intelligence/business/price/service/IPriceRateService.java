@@ -1,0 +1,43 @@
+package com.intelligence.business.price.service;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+
+import com.intelligence.common.exception.PowerException;
+
+/**
+ * 定时刷新汇率
+ * @author 作者 E-mail:bzp
+ * @date 创建时间：2017年1月10日 下午8:25:03
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+public interface IPriceRateService {
+	
+	/**
+	 * 获取当前汇率
+	 * 
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<String, Object> getCurrentRate() throws PowerException;
+	
+	/**
+	 * 刷新汇率
+	 * 
+	 * @throws PowerException
+	 */
+	public void refreshCurrentRate() throws PowerException;
+	
+	/**
+	 * 根据国家获取汇率
+	 * 
+	 * @param countryId
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<Integer, BigDecimal> getRateByCountry() throws PowerException;
+	
+}

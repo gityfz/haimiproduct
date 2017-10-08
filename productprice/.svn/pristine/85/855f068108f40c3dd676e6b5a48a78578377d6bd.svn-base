@@ -1,0 +1,26 @@
+/**
+ * 系统自检测试定时任务java文件
+ */
+package com.intelligence.common.task;
+
+import javax.annotation.Resource;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+
+/**
+ * 系统自检测试定时任务类
+ * 
+ * @author sunhao
+ * @date 2014-06-03 11:32:45
+ */
+@Component
+public class SystemCheckTask {
+
+	//@Scheduled(cron = "*/5 * * * * ?")
+	public void test() {
+		System.out.println("系统定时自检。。。");
+	}
+	
+}

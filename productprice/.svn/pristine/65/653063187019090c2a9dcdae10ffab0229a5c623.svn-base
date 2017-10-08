@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.base.persistance.CodeNameMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  	<!-- 品牌名称键值对 -->
+  	<resultMap id="brandCodeName" type="com.intelligence.business.product.entity.ProductBrand">
+  		<result column="id" property="brandId"/>
+  		<result column="brand_name" property="brandName"/>
+  		<result column="brand_name_en" property="brandNameEn"/>
+	</resultMap>
+    <select id="queryBrandCodeName" resultMap="brandCodeName" parameterType="java.util.Map">
+    	<![CDATA[
+	    select 
+	    	id,
+	    	brand_name,
+	    	brand_name_en
+	    from 
+	    	brand
+	    where 
+	    	del_flag = 0 
+	    and 
+	    	id >= #{start} 
+	    and 
+	    	id <= #{end}
+	    ]]>
+	</select>
+  
+</mapper>

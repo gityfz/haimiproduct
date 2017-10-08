@@ -1,0 +1,242 @@
+package com.intelligence.business.product.entity;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * 前端商品实体
+ * 
+ * @author 004
+ *
+ */
+public class ProductFront implements Serializable {
+
+	/**
+	 * 序列化ID
+	 */
+	private static final long serialVersionUID = -2690025383341522111L;
+
+	/**
+	 * 商品ID
+	 */
+	private Integer productId = null;
+	
+	/**
+	 * 商品品类
+	 */
+	private String productType = null;
+	
+	/**
+	 * 商品名称
+	 */
+	private String productName = null;
+	
+	/**
+	 * 商品英文名称
+	 */
+	private String productNameEn = null;
+	
+	/**
+	 * 国家ID
+	 */
+	private Integer countryId = null;
+	
+	/**
+	 * 品牌ID
+	 */
+	private Integer brandId = null;
+	
+	/**
+	 * 排序权重
+	 */
+	private Integer topRank = null;
+	
+	/**
+	 * 销量
+	 */
+	private Integer sellNum = null;
+	
+	/**
+	 * 临时统一价
+	 */
+	private BigDecimal uniPrice = null;
+	
+	/**
+	 * 新增时间
+	 */
+	private Date addTime = null;
+	
+	/**
+	 * 表后缀
+	 */
+	private String tblSuffix = null;
+
+	/**
+	 * @return the productType
+	 */
+	public String getProductType() {
+		return productType;
+	}
+
+	/**
+	 * @param productType the productType to set
+	 */
+	public void setProductType(String productType) {
+		this.productType = productType;
+	}
+
+	/**
+	 * @return the productName
+	 */
+	public String getProductName() {
+		return productName;
+	}
+
+	/**
+	 * @param productName the productName to set
+	 */
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	/**
+	 * @return the productNameEn
+	 */
+	public String getProductNameEn() {
+		return productNameEn;
+	}
+
+	/**
+	 * @param productNameEn the productNameEn to set
+	 */
+	public void setProductNameEn(String productNameEn) {
+		this.productNameEn = productNameEn;
+	}
+
+	/**
+	 * @return the countryId
+	 */
+	public Integer getCountryId() {
+		return countryId;
+	}
+
+	/**
+	 * @param countryId the countryId to set
+	 */
+	public void setCountryId(Integer countryId) {
+		this.countryId = countryId;
+	}
+
+	/**
+	 * @return the brandId
+	 */
+	public Integer getBrandId() {
+		return brandId;
+	}
+
+	/**
+	 * @param brandId the brandId to set
+	 */
+	public void setBrandId(Integer brandId) {
+		this.brandId = brandId;
+	}
+
+	/**
+	 * @return the sellNum
+	 */
+	public Integer getSellNum() {
+		return sellNum;
+	}
+
+	/**
+	 * @param sellNum the sellNum to set
+	 */
+	public void setSellNum(Integer sellNum) {
+		this.sellNum = sellNum;
+	}
+
+	/**
+	 * @return the addTime
+	 */
+	public Date getAddTime() {
+		return addTime;
+	}
+
+	/**
+	 * @param addTime the addTime to set
+	 */
+	public void setAddTime(Date addTime) {
+		this.addTime = addTime;
+	}
+
+	/**
+	 * @return the productId
+	 */
+	public Integer getProductId() {
+		return productId;
+	}
+
+	/**
+	 * @param productId the productId to set
+	 */
+	public void setProductId(Integer productId) {
+		this.productId = productId;
+	}
+
+	/**
+	 * @return the topRank
+	 */
+	public Integer getTopRank() {
+		return topRank;
+	}
+
+	/**
+	 * @param topRank the topRank to set
+	 */
+	public void setTopRank(Integer topRank) {
+		this.topRank = topRank;
+	}
+
+	/**
+	 * @return the uniPriceTmp
+	 */
+	public BigDecimal getUniPrice() {
+		return uniPrice;
+	}
+
+	/**
+	 * @param uniPriceTmp the uniPriceTmp to set
+	 */
+	public void setUniPriceTmp(BigDecimal uniPrice) {
+		this.uniPrice = uniPrice;
+	}
+
+	/**
+	 * @return the tblSuffix
+	 */
+	public String getTblSuffix() {
+		return tblSuffix;
+	}
+
+	/**
+	 * @param tblSuffix the tblSuffix to set
+	 */
+	public void setTblSuffix(Integer userId) {
+		this.tblSuffix = String.valueOf(userId % 10);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ProductFront [productId=" + productId + ", productType="
+				+ productType + ", productName=" + productName
+				+ ", productNameEn=" + productNameEn + ", countryId="
+				+ countryId + ", brandId=" + brandId + ", topRank=" + topRank
+				+ ", sellNum=" + sellNum + ", uniPrice=" + uniPrice
+				+ ", addTime=" + addTime + ", tblSuffix=" + tblSuffix + "]";
+	}
+	
+}

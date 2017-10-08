@@ -1,0 +1,15 @@
+package com.intelligence.business.product.service.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.intelligence.business.product.service.IProductService;
+
+public class ProductServiceImpl implements IProductService {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
+	
+}

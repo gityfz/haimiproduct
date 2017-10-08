@@ -1,0 +1,14 @@
+package com.intelligence.business.product.persistance;
+
+import java.util.HashMap;
+
+public interface ProductTypeMapper {
+
+	/**
+	 * 新增品类
+	 * 
+	 * @param type
+	 */
+	void insertProductType(HashMap<String, Object> type);
+	
+}

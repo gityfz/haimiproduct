@@ -1,0 +1,116 @@
+package com.intelligence.business.base.service.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import net.rubyeye.xmemcached.exception.MemcachedException;
+
+import com.intelligence.business.base.dao.ICodeNameDao;
+import com.intelligence.business.base.service.ICodeNameService;
+import com.intelligence.business.product.entity.ProductBrand;
+import com.intelligence.common.cache.CacheManager;
+import com.intelligence.common.cache.MemcacheTools;
+import com.intelligence.common.exception.PowerException;
+
+@Service
+public class CodeNameServiceImpl implements ICodeNameService {
+
+	/**
+	 * 键值对DAO层
+	 */
+	@Resource
+	private ICodeNameDao iCodeNameDao;
+	
+	/**
+	 * memcache工具
+	 */
+	@Resource
+	private MemcacheTools memcacheTools;
+	
+	/**
+	 * 匹配品牌编码名称
+	 * 
+	 * 
+	 * @param brandId
+	 * @return
+	 * @throws PowerException
+	 */
+	public String mapBrandCodeName(Integer brandId) throws PowerException {
+		HashMap<String, Integer> codeNameParam = this.getCodeNameRange(brandId);
+		StringBuffer codeNameKey = new StringBuffer("brandCodeName");
+		codeNameKey.append(codeNameParam.get("start"));
+		codeNameKey.append(codeNameParam.get("end"));
+		HashMap<String, Object> codeNameData = this.getCodeNameData(codeNameKey.toString());
+		if (null == codeNameData) {
+			ArrayList<ProductBrand> brandCodeNames = iCodeNameDao.getBrandCodeName(codeNameParam);
+			if (null == brandCodeNames) {
+				return null;
+			}
+			codeNameData = new HashMap<String, Object>();
+			for (int i = 0, l = brandCodeNames.size(); i < l; i++) {
+				codeNameData.put(brandCodeNames.get(i).getBrandId().toString(), brandCodeNames.get(i));				
+			}
+			this.setCodeNameData(codeNameKey.toString(), codeNameData);
+		}
+		return ((ProductBrand)codeNameData.get(brandId.toString())).getBrandName();
+	}
+	
+	/**
+	 * 获取键值匹配范围
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public HashMap<String, Integer> getCodeNameRange(Integer id) {
+		HashMap<String, Integer> range = new HashMap<String, Integer>();
+		range.put("start", Integer.valueOf(id / 50) * 50);
+		range.put("end", (Integer.valueOf(id / 50) + 1) * 50);
+		return range;
+	}
+
+	/**
+	 * 获取键值匹配数据
+	 * 
+	 * @param codeNameKey
+	 * @return
+	 * @throws IOException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 * @throws MemcachedException
+	 */
+	@SuppressWarnings("unchecked")
+	public HashMap<String, Object> getCodeNameData(String codeNameKey) throws PowerException {
+		if (null != CacheManager.getManager().getCache(codeNameKey)) {
+			return (HashMap<String, Object>) CacheManager.getManager().getCache(codeNameKey);
+		} else if (null != memcacheTools.getMemData(codeNameKey)) {
+			HashMap<String, Object> memData = (HashMap<String, Object>) memcacheTools.getMemData(codeNameKey);
+			CacheManager.getManager().setCache(codeNameKey, memData, 60000l);
+			return memData;
+		} else {
+			return null;			
+		}
+	}
+	
+	/**
+	 * 设置键值匹配数据
+	 * 
+	 * @param codeNameKey
+	 * @param memData
+	 * @throws IOException
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 * @throws MemcachedException
+	 */
+	public void setCodeNameData(String codeNameKey, HashMap<String, Object> memData) throws PowerException {
+		memcacheTools.setMemData(codeNameKey, 10800, memData);
+		CacheManager.getManager().setCache(codeNameKey, memData, 60000l);
+	}
+	
+	
+}

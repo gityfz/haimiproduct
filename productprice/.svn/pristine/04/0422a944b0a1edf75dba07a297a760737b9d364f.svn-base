@@ -1,0 +1,18 @@
+package com.intelligence.business.product.service;
+
+import java.util.HashMap;
+
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductService {
+
+	/**
+	 * 新增商品
+	 * 
+	 * @param productParam
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer addProduct(HashMap<String, Object> productParam) throws PowerException;
+	
+}

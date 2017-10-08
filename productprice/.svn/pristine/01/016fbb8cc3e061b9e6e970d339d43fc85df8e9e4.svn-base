@@ -1,0 +1,20 @@
+package com.intelligence.business.product.persistance;
+
+import java.util.HashMap;
+
+public interface ProductBrandMapper {
+
+	/**
+	 * 新增品牌
+	 * 
+	 * @param productBrand
+	 */
+	void insertProductBrand(HashMap<String, Object> productBrand);
+	
+	/**
+	 * 新增明细
+	 * 
+	 * @param detail
+	 */
+	void insertDetail(HashMap<String, Object> detail);
+}

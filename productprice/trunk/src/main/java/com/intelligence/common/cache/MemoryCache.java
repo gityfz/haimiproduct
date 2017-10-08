@@ -1,0 +1,435 @@
+/**
+ * 
+ */
+package com.intelligence.common.cache;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+
+/**
+ * @author p-sunhao
+ *
+ */
+public final class MemoryCache {
+
+	/**
+	 * 内存分配等级1  0.01
+	 */
+	public final static Float ALLOC_ONE_LEVEL = 0.01f;
+	
+	/**
+	 * 内存分配等级2  0.02
+	 */
+	public final static Float ALLOC_TWO_LEVEL = 0.02f;
+	
+	/**
+	 * 内存分配等级3  0.03
+	 */
+	public final static Float ALLOC_THREE_LEVEL = 0.03f;
+	
+	/**
+	 * 内存分配等级4  0.04
+	 */
+	public final static Float ALLOC_FOUR_LEVEL = 0.04f;
+	
+	/**
+	 * 内存分配等级5  0.05
+	 */
+	public final static Float ALLOC_FIVE_LEVEL = 0.05f;
+	
+	/**
+	 * 内存分配系数
+	 */
+	public final static Float ALLOC_RATIO = 1.1f;
+	
+	/**
+	 * 清理系数上线
+	 */
+	public final static Float RATIO_MAX = 0.2f;
+	
+	/**
+	 * 一级分配标准
+	 */
+	public final static Long ALLOC_ONE_STAND = 64000000l;
+	
+	/**
+	 * 二级分配标准
+	 */
+	public final static Long ALLOC_TWO_STAND = 128000000l;
+	
+	/**
+	 * 三级分配标准
+	 */
+	public final static Long ALLOC_THREE_STAND = 256000000l;
+	
+	/**
+	 * 四级分配标准
+	 */
+	public final static Long ALLOC_FOUR_STAND = 512000000l;
+	
+	/**
+	 * 开始时间标记
+	 */
+	public final static String START_TIME = "::start_time";
+	
+	/**
+	 * 存在时间标记
+	 */
+	public final static String EXIST_TIME = "::exist_time";
+	
+	/**
+	 * 时间大小标记
+	 */
+	public final static String SIZE_TIME = "::size_time";
+	
+	/**
+	 * 1KB限制
+	 */
+	public static final int ONE_K_LIMIT = 1024;
+	
+	/**
+	 * 2MB限制
+	 */
+	public static final int TWO_M_LIMIT = 2097152;
+	
+	/**
+	 * 数字0
+	 */
+	public static final int CACHE_NUM_ZERO = 0;
+	
+	/**
+	 * 数字1
+	 */
+	public static final int CACHE_NUM_ONE = 1;
+	
+	/**
+	 * 数字2
+	 */
+	public static final int CACHE_NUM_TWO = 2;
+	
+	/**
+	 * 时间大小
+	 */
+	public final static Integer TIME_SIZE = 80;
+	
+	/**
+	 * 反射变量限制
+	 */
+	public final static Integer REFLECT_LIMIT = 100;
+	
+	/**
+	 * 一级缓存
+	 */
+	private static HashMap<String, Object> oneLevelCache = null;
+	
+	/**
+	 * 二级缓存
+	 */
+	private static HashMap<String, Object> twoLevelCache = null;
+	
+	/**
+	 * 时间缓存
+	 */
+	private static HashMap<String, Long> timeCache = null;
+	
+	/**
+	 * 缓存队列
+	 */
+	private static LinkedHashSet<String> queSet = null;
+	
+	/**
+	 * 字节流
+	 */
+	private static ByteArrayOutputStream byteStream = null;
+	
+	/**
+	 * 对象流
+	 */
+	private static ObjectOutputStream objStream = null;
+	
+	/**
+	 * 缓存池大小
+	 */
+	private static Long cacheSize = null;
+	
+	/**
+	 * 初始化缓存
+	 * 
+	 * @throws IOException 
+	 */
+	public static void initCache() throws IOException {
+		// 初始化一级缓存
+		if (null == oneLevelCache) {
+			oneLevelCache = new HashMap<String, Object>();
+		}
+		// 初始化二级缓存
+		if (null == twoLevelCache) {
+			twoLevelCache = new HashMap<String, Object>();
+		}
+		// 初始化时间缓存
+		if (null == timeCache) {
+			timeCache = new HashMap<String, Long>();
+		}
+		// 初始化队列
+		if (null == queSet) {
+			queSet = new LinkedHashSet<String>();
+		}
+		// 初始化字节流
+		if (null == byteStream) {
+			byteStream = new ByteArrayOutputStream();
+		}
+		// 初始化对象流		
+		if (null == objStream) {
+			objStream = new ObjectOutputStream(byteStream);
+		}
+		// 初始化缓存池大小		
+		if (null == cacheSize) {
+			cacheSize = 0l;
+			cacheSize += getObjectSize(oneLevelCache);
+			cacheSize += getObjectSize(twoLevelCache);
+			cacheSize += getObjectSize(timeCache);
+			cacheSize += getObjectSize(queSet);
+		}
+	}
+	
+	/**
+	 * 设置一级缓存
+	 * 
+	 * @param key
+	 * @param data
+	 * @return
+	 * @throws NullPointerException
+	 * @throws IOException 
+	 */
+	public static void setOneLevelCache(String key, Object data, int size) {
+		oneLevelCache.put(key, data);
+		cacheSize += size;
+	}
+	
+	/**
+	 * 设置二级缓存
+	 * 
+	 * @param key
+	 * @param data
+	 * @return
+	 * @throws NullPointerException
+	 * @throws IOException 
+	 */
+	public static void setTwoLevelCache(String key, Object data, int size) {
+		twoLevelCache.put(key, data);
+		cacheSize += size;
+	}
+	
+	/**
+	 * 设置队列
+	 * 
+	 * @return
+	 * @throws IOException 
+	 */
+	public static void setQueSet(String key, int size) {
+		queSet.add(key);
+		cacheSize += size;
+	}
+	
+	/**
+	 * 设置时间信息缓存
+	 * 
+	 * @return
+	 * @throws IOException 
+	 */
+	public static void setTimeCache(String key, Long time, int timeSize, int size) {
+		// 设置开始时间
+		timeCache.put(key + START_TIME, System.currentTimeMillis());
+		// 设置存在时间
+		timeCache.put(key + EXIST_TIME, time);
+		// 设置对应大小
+		timeCache.put(key + SIZE_TIME, (long) timeSize);
+		cacheSize += size;
+	}
+	
+	/**
+	 * 获取缓存插入变量大小
+	 * 
+	 * @param key
+	 * @param data
+	 * @return
+	 * @throws NullPointerException
+	 * @throws IOException 
+	 */
+	public static int getCacheSizeToSet(String key, Object data) throws IOException  {
+		return getObjectSize(data) + getObjectSize(key);
+	}
+	
+	/**
+	 * 获取时间缓存插入变量大小
+	 * 
+	 * @param key
+	 * @param data
+	 * @return
+	 * @throws NullPointerException
+	 * @throws IOException 
+	 */
+	public static int getTimeCacheSizeToSet(String key) throws IOException  {
+		return getObjectSize(key + START_TIME) + getObjectSize(key + EXIST_TIME) + getObjectSize(key + SIZE_TIME) + TIME_SIZE + TIME_SIZE + TIME_SIZE;
+	}
+	
+	/**
+	 * 获取队列插入变量大小
+	 * 
+	 * @param key
+	 * @param data
+	 * @return
+	 * @throws NullPointerException
+	 * @throws IOException 
+	 */
+	public static int getQueSetSizeToSet(String key) throws IOException  {
+		return getObjectSize(key);
+	}
+	
+	/**
+	 * 获取一级缓存
+	 * 
+	 * @return
+	 */
+	public static HashMap<String, Object> getOneLevelCache() {
+		return oneLevelCache;
+	}
+	
+	/**
+	 * 获取二级缓存
+	 * 
+	 * @return
+	 */
+	public static HashMap<String, Object> getTwoLevelCache() {
+		return twoLevelCache;
+	}
+	
+	/**
+	 * 获取时间信息缓存
+	 * 
+	 * @return
+	 */
+	public static HashMap<String, Long> getTimeCache() {
+		return timeCache;
+	}
+	
+	/**
+	 * 获取队列顺序
+	 * 
+	 * @return
+	 */
+	public static LinkedHashSet<String> getQueSet() {
+		return queSet;
+	}
+	
+	/**
+	 * 获取对象大小
+	 * 
+	 * @param obj
+	 * @return
+	 * @throws IOException
+	 */
+	public static int getObjectSize(Object obj) throws IOException {
+		int result = 0;
+		try {
+			objStream.writeObject(obj);
+			objStream.flush();
+			result = byteStream.size();			
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			try {
+				objStream.close();
+				byteStream.flush();
+				byteStream.reset();
+				byteStream.close();	
+			} catch (IOException e) {
+				throw e;
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 获取缓存大小
+	 * 
+	 * @return
+	 */
+	public static Long getCacheSize() {
+		return cacheSize;
+	}
+	
+	/**
+	 * 清除一级缓存
+	 * 
+	 * @param key
+	 */
+	public static void clearOneLevelCache(String key) {
+		oneLevelCache.remove(key);
+	}
+	
+	/**
+	 * 清除二级缓存
+	 * 
+	 * @param key
+	 */
+	public static void clearTwoLevelCache(String key) {
+		twoLevelCache.remove(key);
+	}
+	
+	/**
+	 * 清除时间缓存
+	 * 
+	 * @param key
+	 */
+	public static void clearTimeCache(String key) {
+		timeCache.remove(key + START_TIME);
+		timeCache.remove(key + EXIST_TIME);
+		timeCache.remove(key + SIZE_TIME);
+	}
+	
+	/**
+	 * 清除队列
+	 * 
+	 * @param key
+	 */
+	public static void clearQueSet(String key) {
+		queSet.remove(key);
+	}
+	
+	/**
+	 * 扩大缓存规模
+	 * 
+	 * @param inbalance
+	 */
+	public static void expandCacheSize(Long inbalance) {
+		cacheSize += inbalance;
+	}
+	
+	/**
+	 * 缩小缓存规模
+	 * 
+	 * @param inbalance
+	 */
+	public static void narrowCacheSize(Long inbalance) {
+		cacheSize -= inbalance;
+	}
+	
+	/**
+	 * 摧毁缓存
+	 */
+	public static void destroyCache() {
+		oneLevelCache = null;
+		twoLevelCache = null;
+		timeCache = null;
+		queSet = null;
+		byteStream = null;
+		objStream = null;
+		cacheSize = null;
+	}
+
+}

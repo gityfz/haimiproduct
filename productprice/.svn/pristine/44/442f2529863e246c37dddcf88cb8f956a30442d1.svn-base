@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.price.persistance.ProductUserPriceMapper">
+
+	<!-- 商品用户价格实体映射 -->
+	<resultMap id="productUserPrice" type="com.intelligence.business.price.entity.ProductUserPrice">
+		<!-- 商品用户价格表 -->
+		<!-- 主键ID -->
+		<id column="id" property="productUserPriceId" jdbcType="INTEGER" />
+		<!-- 国家ID -->
+		<result column="country_id " property="countryId" jdbcType="INTEGER" />
+		<!-- 商品ID -->
+		<result column="product_id" property="productId" jdbcType="INTEGER" />
+		<!-- 仓库ID -->
+		<result column="depot_id" property="depotId" jdbcType="INTEGER" />
+		<!-- 商品ID -->
+		<result column="product_id" property="productId" jdbcType="INTEGER" />
+		<!-- 用户ID -->
+		<result column="user_id" property="userId" jdbcType="INTEGER" />
+		<!-- 临时价格 -->
+		<result column="price_tmp" property="priceTmp" jdbcType="DECIMAL" />
+		<!-- 价格差 -->
+		<result column="price_bal" property="priceBal" jdbcType="DECIMAL" />
+		<!-- 参考价格差 -->
+		<result column="price_refer_bal" property="priceReferBal" jdbcType="DECIMAL" />
+		<!-- 价格差率 -->
+		<result column="price_bal_rate" property="priceBalRate" jdbcType="DECIMAL" />
+		<!-- 参考价格差率 -->
+		<result column="price_refer_bal_rate" property="priceReferBalRate" jdbcType="DECIMAL" />
+		<!-- 新增时间 -->
+		<result column="add_time" property="addTime" jdbcType="DATE" />
+		<!-- 更新时间 -->
+		<result column="update_time" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+	
+	<!-- 获取商品用户价格 -->
+	<select id="queryProductUserPrice" resultMap="productUserPrice" parameterType="java.util.HashMap">
+		SELECT
+  			id,
+  			country_id,
+			product_id,
+			depot_id,
+			user_id,
+			price_tmp,
+			price_bal,
+			price_refer_bal,
+			price_bal_rate,
+			price_refer_bal_rate
+		FROM 
+			product_user_price
+		WHERE
+			del_flag = 0
+		<if test="start != null">
+		LIMIT #{start}, #{limit}
+		</if>
+	</select>
+
+	<!-- 获取商品用户价格数量 -->
+	<select id="queryProductUserPriceCount" resultType="java.lang.Integer">
+		SELECT
+  			COUNT(0)
+		FROM 
+			product_user_price
+		WHERE
+			del_flag = 0
+	</select>
+
+	
+  
+</mapper>

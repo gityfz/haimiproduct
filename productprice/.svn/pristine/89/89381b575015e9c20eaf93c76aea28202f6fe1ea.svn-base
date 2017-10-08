@@ -1,0 +1,84 @@
+package com.intelligence.business.product.dao;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import com.intelligence.business.product.entity.Product;
+import com.intelligence.common.exception.PowerException;
+
+public interface IProductDao {
+
+	/**
+	 * 新增一条商品
+	 * 
+	 * 
+	 * @param product
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer addProduct(HashMap<String, Object> product)
+			throws PowerException;
+
+	/**
+	 * 新增一条详情
+	 * 
+	 * 
+	 * @param detail
+	 * @return
+	 * @throws PowerException
+	 */
+
+	public Integer addDetail(HashMap<String, Object> detail)
+			throws PowerException;
+
+	/**
+	 * 商品详情查看
+	 * @param productId
+	 * @return
+	 */
+	public HashMap<String, Object> selectProduct(int productId) throws PowerException;
+
+
+	/**
+	 * 更新详情信息
+	 * @param brandDetail
+	 */
+	public Integer updateDetail(HashMap<String, Object> brandDetail) throws PowerException;
+	
+	
+	/**
+	 * 根据条件查询商品记录
+	 * @param productConditionParam
+	 * @return
+	 */
+	public List<HashMap<String, Object>> queryByCondition(HashMap<String, Object> productConditionParam) throws PowerException;
+
+	/**
+	 * 获取商品数据
+	 * 
+	 * 
+	 * @param productParam
+	 * @return
+	 * @throws PowerException
+	 */
+	public ArrayList<Product> queryProductData(HashMap<String, Object> productParam) throws PowerException;
+	
+	/**
+	 * 获取商品索引数据数量
+	 * 
+	 * @param productParam
+	 * @return
+	 */
+	public Integer queryProductIndexCount(HashMap<String, Object> productParam) throws PowerException;
+	
+	/**
+	 * 获取商品索引数据
+	 * 
+	 * 
+	 * @param productParam
+	 * @return
+	 */
+	public ArrayList<Product> queryProductIndex(HashMap<String, Object> productParam) throws PowerException;
+	
+}

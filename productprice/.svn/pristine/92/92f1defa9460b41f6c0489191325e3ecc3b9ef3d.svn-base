@@ -1,0 +1,185 @@
+package com.intelligence.autodev.controller;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.rubyeye.xmemcached.exception.MemcachedException;
+import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.intelligence.autodev.service.ITestService;
+import com.intelligence.common.base.BaseController;
+import com.intelligence.common.cache.MemcacheTools;
+import com.intelligence.common.cache.RedisTools;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+
+
+@Controller
+@RequestMapping(value = "/autodev-test")
+public class TestController extends BaseController {
+	
+	public final static Logger logger = LoggerFactory.getLogger(TestController.class);
+	
+	@Resource
+	private ITestService iTestService;
+	
+	@Resource
+	private HttpServletRequest httpRequest;
+	
+	@Resource
+	private HttpServletResponse httpResponse;
+	
+	@Resource
+	private MemcacheTools memcacheTools;
+	
+	@Resource
+	private RedisTools redisTools;
+
+	@RequestMapping(value = "/test/{testId}", method = RequestMethod.GET)
+	public void test(@PathVariable String testId) {
+		System.out.println(testId);    
+		iTestService.test();
+	}
+
+	@RequestMapping(value = "/test2", method = RequestMethod.GET)
+	public ModelAndView test2(@RequestParam(required=false) String name, @RequestParam("sex") int sex) {
+		if (logger.isDebugEnabled()) {
+			logger.debug(LogUtils.commonFormat("测试日志", 1,2,3,4,5,6));
+		}
+		System.out.println(name + sex);
+		ModelAndView mav = new ModelAndView("test2");
+		mav.addObject("aaaa", "2222");
+		return mav;    
+	}
+	
+	@RequestMapping(value = "/test3", method = RequestMethod.GET)
+	public void test3(@RequestParam(required=false) String name, @RequestParam("sex") int sex, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		System.out.println(request.getParameter("name"));
+		logger.info(LogUtils.commonFormat("JSON测试", 1,2,3,4,5,6));
+		if (logger.isInfoEnabled()) {
+			logger.info(LogUtils.commonFormat("JSON测试", 1,2,3,4,5,6));
+		}
+		if (logger.isWarnEnabled()) {
+			System.out.println(1);
+		}
+		if (logger.isErrorEnabled()) {
+			System.out.println(2);
+		}
+		System.out.println(name + sex);
+		PrintWriter out = response.getWriter();
+		out.print("Hello World");
+		out.flush();
+		out.close();
+	}
+	
+	@RequestMapping(value = "/test4", method = RequestMethod.POST)
+	public void test4(HttpServletRequest request, HttpServletResponse response) throws IOException, PowerException {
+		JSONObject params = this.getParams(request, response);
+		System.out.println(params);
+		System.out.println(request.getParameter("name"));
+		System.out.println(request.getQueryString());
+		String line = null;
+		BufferedReader reader = request.getReader();
+		      while ((line = reader.readLine()) != null) {
+		    	  System.out.println(line); 
+		      }
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(LogUtils.commonFormat("JSON测试", 1,2,3,4,5,6));
+		}
+		Long pre = System.currentTimeMillis();
+//		iTestService.test();
+		
+		this.sendResult(response, System.currentTimeMillis() - pre);
+	}
+	
+	@RequestMapping(value = "/test5", method = RequestMethod.DELETE)
+	public void test5(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		System.out.println(request.getMethod());
+		System.out.println(request.getQueryString());
+		String line = null;
+		BufferedReader reader = request.getReader();
+		      while ((line = reader.readLine()) != null) {
+		    	  System.out.println(line); 
+		      }
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(LogUtils.commonFormat("JSON测试", 1,2,3,4,5,6));
+		}
+		PrintWriter out = response.getWriter();
+		out.print("Hello World");
+		out.flush();
+		out.close();
+	}
+	
+	@RequestMapping(value = "/test6", method = RequestMethod.GET)
+	public void actionTest6(HttpServletRequest request, HttpServletResponse response) throws IOException, PowerException {
+		Object[] objs = new Object[1];
+		objs[0] = 1;
+		HashMap<String, Object> configMap = new HashMap<String, Object>();
+		configMap.put("expire", 1000);
+//		System.out.println(memcacheTools.injectMemcache("testmem", iTestService, "test2", objs, configMap));
+		System.out.println(memcacheTools.setMemData("name", 1000, "王老比"));
+//			memcacheTools.test();
+		System.out.println(memcacheTools.setMemData("name", 100, "王老比"));
+		System.out.println(memcacheTools.getMemData("name"));
+	}
+	
+	@RequestMapping(value = "/test7", method = RequestMethod.GET)
+	public void test7() throws IOException {
+		System.out.println(httpRequest.getMethod());
+		System.out.println(httpRequest.getQueryString());
+		String line = null;
+		BufferedReader reader = httpRequest.getReader();
+	    while ((line = reader.readLine()) != null) {
+	    	System.out.println(line); 
+	    }
+		PrintWriter out = httpResponse.getWriter();
+		out.print("Hello World");
+		out.flush();
+		out.close();
+	}
+	
+//	（三）使用 @CookieValue 绑定 cookie 的值到 Controller 方法参数
+//	@RequestMapping ( "cookieValue" )  
+//	public String testCookieValue( @CookieValue ( "hello" ) String cookieValue, @CookieValue String hello) {  
+//	    System. out .println(cookieValue + "-----------" + hello);  
+//	    return "cookieValue" ;  
+//	}   
+//	在上面的代码中我们使用@CookieValue 绑定了cookie 的值到方法参数上。上面一共绑定了两个参数，一个是明确指定要绑定的是名称为hello 的cookie 的值，一个是没有指定。使用没有指定的形式的规则和@PathVariable 、@RequestParam 的规则是一样的，即在debug 编译模式下将自动获取跟方法参数名同名的cookie 值。
+//	
+//	（四）使用 @RequestHeader 注解绑定 HttpServletRequest 头信息到 Controller 方法参数
+//    @RequestMapping ( "testRequestHeader" )  
+//    public String testRequestHeader( @RequestHeader ( "Host" ) String hostAddr, @RequestHeader String Host, @RequestHeader String host ) {  
+//        System. out .println(hostAddr + "-----" + Host + "-----" + host );  
+//	    return "requestHeader" ;  
+//	}
+//	在上面的代码中我们使用了 @RequestHeader 绑定了 HttpServletRequest 请求头 host 到 Controller 的方法参数。上面方法的三个参数都将会赋予同一个值，由此我们可以知道在绑定请求头参数到方法参数的时候规则和 @PathVariable 、 @RequestParam 以及 @CookieValue 是一样的，即没有指定绑定哪个参数到方法参数的时候，在 debug 编译模式下将使用方法参数名作为需要绑定的参数。但是有一点 @RequestHeader 跟另外三种绑定方式是不一样的，那就是在使用 @RequestHeader 的时候是大小写不敏感的，即 @RequestHeader(“Host”) 和 @RequestHeader(“host”) 绑定的都是 Host 头信息。记住在 @PathVariable 、 @RequestParam 和 @CookieValue 中都是大小写敏感的。
+//	   a. 在web.xml中配置一个监听
+//	   <listener>  
+//	           <listener-class>  
+//	               org.springframework.web.context.request.RequestContextListener  
+//	           </listener-class>  
+//	   </listener>
+//	      b.之后在程序里可以用
+//	   HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();  
+
+
+	
+}

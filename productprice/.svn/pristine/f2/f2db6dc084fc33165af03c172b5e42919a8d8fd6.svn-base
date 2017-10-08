@@ -1,0 +1,12 @@
+package com.intelligence.business.price.service;
+
+import java.util.HashMap;
+import java.util.HashSet;
+
+import com.intelligence.common.exception.PowerException;
+
+public interface IPriceInterfaceService {
+
+
+	
+}

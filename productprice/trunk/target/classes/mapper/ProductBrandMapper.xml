@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.product.persistance.ProductBrandMapper" >
+  
+  <!-- <sql id="Base_Column_List" >
+    id, agency_id, error_code, url, response_time, add_time, params, result, exception, error_type, tuniu_agency_name, agency_ip, order_id
+  </sql> -->
+  
+  <!-- <include refid="Base_Column_List" /> -->
+  
+  	<!-- 新增品牌信息 -->	
+  	<insert id="insertProductBrand" useGeneratedKeys="true" keyProperty="brandId" parameterType="java.util.HashMap">   
+    	INSERT INTO brand
+            (brand_name, 
+            <if test="brandNameEn != null"> 
+            brand_name_en, 
+            </if>
+            brand_first_letter,
+            brand_index,
+            brand_logo, 
+            country_id, 
+            detail_id, 
+            brand_site, 
+            add_time
+            )
+		VALUES (
+			#{brandName}, 
+			<if test="brandNameEn != null">
+			#{brandNameEn}, 
+			</if>
+			#{brandFirstLetter},
+			#{brandIndex}, 
+			#{brandLogo}, 
+			#{countryId}, 
+			#{detailId}, 
+			#{brandSite},
+        	#{addTime} 
+        	);   
+	</insert>
+	
+	<!-- 更新品牌信息 -->	
+  	<update id="updateProductBrand"  parameterType="java.util.HashMap">   
+    	update 
+    	brand
+    	set id = #{brandId}
+    	<if test="brandName != null"> 
+        ,
+        brand_name = #{brandName} 
+        </if>
+        <if test="brandNameEn != null"> 
+        ,
+        brand_name_en = #{brandNameEn} 
+        </if>
+        <if test="brandFirstLetter != null"> 
+        ,
+        brand_first_letter = #{brandFirstLetter} 
+        </if>
+        <if test="brandIndex != null"> 
+        ,
+        brand_index = #{brandIndex} 
+        </if>
+        <if test="brandLogo != null"> 
+        ,
+        brand_logo = #{brandLogo} 
+        </if>
+        <if test="countryId != null"> 
+        ,
+        country_id = #{countryId} 
+        </if>
+        <if test="detailId != null"> 
+        ,
+        detail_id = #{detailId} 
+        </if>
+        <if test="brandSite != null"> 
+        ,
+        brand_site = #{brandSite} 
+        </if>
+        WHERE
+        id = #{brandId}
+        </update>
+	
+	<resultMap id="productBrandMap" type="com.intelligence.business.product.entity.ProductBrand">
+		<result column="id" property="brandId"/>
+  		<result column="brand_name" property="brandName"/>
+  		<result column="brand_name_en" property="brandNameEn"/>
+  		<result column="brand_first_letter" property="brandFirstLetter"/>
+  		<result column="brand_index" property="brandIndex"/>
+  		<result column="brand_logo" property="brandLogo"/>
+  		<result column="country_id" property="countryId"/>
+  		<result column="detail_id" property="detailId"/>
+  		<result column="brand_site" property="brandSite"/>
+	</resultMap>
+	
+	<select id="selectBrandById" resultMap="productBrandMap" >
+    	<![CDATA[
+	    select 
+	    	id,
+	    	brand_name,
+	    	brand_name_en,
+	    	brand_first_letter,
+	    	brand_index,
+	    	brand_logo,
+	    	country_id,
+	    	detail_id,
+	    	brand_site
+	    from 
+	    	brand
+	    where 
+	    	id = #{id} 
+	    and
+	        del_flag = 0
+	    ]]>
+	</select>
+	
+</mapper>

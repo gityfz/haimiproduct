@@ -1,0 +1,61 @@
+package com.intelligence.business.product.dao.impl;
+
+import java.util.HashMap;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.business.product.dao.IProductBrandDao;
+import com.intelligence.business.product.persistance.ProductBrandMapper;
+import com.intelligence.common.exception.ErrorCode;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+
+@Repository
+public class ProductBrandDaoImpl implements IProductBrandDao{
+	
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(ProductBrandDaoImpl.class);
+	
+	@Resource
+	private ProductBrandMapper productBrandMapper;
+	
+	/**
+	 * 新增一条商品
+	 * 
+	 * @param brand
+	 * @return
+	 */
+	public Integer addProductBrand(HashMap<String, Object> brand) {
+		// 日志
+		logger.info(LogUtils.commonFormat("新增一条品牌", brand));
+		// 新增商品
+		productBrandMapper.insertProductBrand(brand);
+		// 返回主键
+		return Integer.valueOf(brand.get("brandId").toString());
+	}
+	
+	/**
+	 * 新增详情
+	 * 
+	 * @throws PowerException 
+	 */
+	public Integer addDetail(HashMap<String, Object> detail) throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("新增一条详情"));
+		try {
+			// 新增详情
+			productBrandMapper.insertDetail(detail);
+			// 返回主键
+			return Integer.valueOf(detail.get("detailId").toString());			
+		} catch (Exception e) {
+			throw new PowerException("新增商品价格中心详情异常", ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+
+}

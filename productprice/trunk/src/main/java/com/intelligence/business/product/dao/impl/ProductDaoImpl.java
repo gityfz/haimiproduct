@@ -1,0 +1,456 @@
+package com.intelligence.business.product.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.business.product.dao.IProductDao;
+import com.intelligence.business.product.entity.Product;
+import com.intelligence.business.product.entity.ProductFilter;
+import com.intelligence.business.product.entity.ProductFront;
+import com.intelligence.business.product.persistance.ProductMapper;
+import com.intelligence.common.exception.ErrorCode;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+
+@Repository
+public class ProductDaoImpl implements IProductDao {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory
+			.getLogger(ProductDaoImpl.class);
+
+	@Resource
+	private ProductMapper productMapper;
+
+	/**
+	 * 新增一条商品
+	 * 
+	 * @param product
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer addProduct(HashMap<String, Object> product)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("新增一条产品", product));
+		try {
+			// 新增商品
+			productMapper.insertProduct(product);
+
+			// 返回主键
+			return Integer.valueOf(product.get("productId").toString());
+		} catch (Exception e) {
+			throw new PowerException("新增商品价格中心产品异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+
+	/**
+	 * 新增详情
+	 * 
+	 * @throws PowerException
+	 */
+	public Integer addDetail(HashMap<String, Object> detail)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("新增一条详情"));
+		try {
+			// 新增详情
+			productMapper.insertDetail(detail);
+			// 返回主键
+			return Integer.valueOf(detail.get("detailId").toString());
+		} catch (Exception e) {
+			throw new PowerException("新增商品价格中心详情异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+	
+	/**
+	 * 更新详情信息
+	 * 
+	 * @throws PowerException
+	 */
+	public Integer updateDetail(HashMap<String, Object> detail)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("更新一条详情"));
+		try {
+			// 新增详情
+			productMapper.updateDetail(detail);
+			// 返回主键
+			return Integer.valueOf(detail.get("detailId").toString());
+		} catch (Exception e) {
+			throw new PowerException("更新详情异常",
+					ErrorCode.QUERY_FAIL.getErrorCode(), e);
+		}
+	}
+	
+	/**
+	 * 获取商品数据
+	 * 
+	 * 
+	 * @param productParam
+	 * @return
+	 * @throws PowerException
+	 */
+	public ArrayList<Product> queryProductData(HashMap<String, Object> productParam) throws PowerException {
+        logger.info(LogUtils.commonFormat("获取键值商品数据", productParam));
+        try {
+        	return productMapper.queryProductData(productParam);
+        } catch (Exception e) {
+        	throw new PowerException("获取键值商品数据异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 获取前端商品数据
+	 * 
+	 * @param productParam
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<String, Object> queryFrontProducts(HashMap<String, Object> productParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("获取前端商品数据", productParam));
+        try {
+			Integer proIdsCount = productMapper.queryFrontProductIdsCount(productParam);
+			ArrayList<ProductFront> proIds = new ArrayList<ProductFront>(0);
+			if (proIdsCount > 0) {
+				proIds = productMapper.queryFrontProductIds(productParam);
+			}
+			HashMap<String, Object> result = new HashMap<String, Object>();
+			result.put("count", proIdsCount);
+			result.put("rows", proIds);
+			return result;
+        } catch (Exception e) {
+        	throw new PowerException("获取前端商品数据异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 查询商品筛选项
+	 * 
+	 * @param productFilterParam
+	 * @return
+	 */
+	public ArrayList<ProductFilter> queryProductFilter(HashMap<String, Object> productFilterParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("查询商品筛选项", productFilterParam));
+        try {
+			return productMapper.queryProductFilter(productFilterParam);
+        } catch (Exception e) {
+        	throw new PowerException("查询商品筛选项异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 查询商品低级筛选项
+	 * 
+	 * @param productParam
+	 * @return
+	 */
+	public ArrayList<ProductFilter> queryProductFilterLow(HashMap<String, Object> productParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("查询商品低级筛选项", productParam));
+        try {
+			return productMapper.queryProductFilterLow(productParam);
+        } catch (Exception e) {
+        	throw new PowerException("查询商品低级筛选项异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 获取商品属性
+	 * 
+	 * @param productMasterId
+	 * @return
+	 */
+	public ArrayList<HashMap<String, Object>> queryProductProp(Integer productMasterId) throws PowerException {
+		logger.info(LogUtils.commonFormat("获取商品属性", productMasterId));
+        try {
+			return productMapper.queryProductProp(productMasterId);
+        } catch (Exception e) {
+        	throw new PowerException("获取商品属性异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 获取商品详情
+	 * 
+	 * @param productId
+	 * @return
+	 */
+	public StringBuilder queryProductDetail(Integer detailId) throws PowerException {
+		logger.info(LogUtils.commonFormat("获取商品详情", detailId));
+        try {
+			return productMapper.queryProductDetail(detailId);
+        } catch (Exception e) {
+        	throw new PowerException("获取商品详情异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 新增组合商品子商品
+	 * 
+	 * @param productId
+	 * @param subProductId
+	 * @param subNum
+	 * @param addTime
+	 */
+	public void addProductSub(HashMap<String, Object> productSubParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("新增组合商品子商品", productSubParam));
+        try {
+			productMapper.addProductSub((Integer)productSubParam.get("productId"), (Integer)productSubParam.get("productSubId"),
+													(Integer)productSubParam.get("subNum"), new Date());
+        } catch (Exception e) {
+        	throw new PowerException("新增组合商品子商品异常",
+        								ErrorCode.ADD_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 查看商品是否是组合商品
+	 * 
+	 * @param productId
+	 * @return
+	 */
+	public Integer queryProductIsGroup(Integer productId) throws PowerException {
+		logger.info(LogUtils.commonFormat("查看商品是否是组合商品", productId));
+        try {
+			return productMapper.queryProductIsGroup(productId);
+        } catch (Exception e) {
+        	throw new PowerException("查看商品是否是组合商品异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+     * 新增商品分类关系映射关系记录
+     * 
+     * @param Params
+     * @return List<HashMap<String, Object>> 商品列表
+     * @throws PowerException
+     * @author zhengyf
+     */
+    public Integer addProductCategory(HashMap<String, Object> Params)
+	    throws PowerException {
+	// 日志
+	logger.info(LogUtils.commonFormat("新增商品分类映射关系记录", Params));
+	try {
+	    // 新增商品分类映射关系记录
+	    productMapper.insertProductCategory(Params);
+		
+	    // 返回主键
+	    return Integer.valueOf(Params.get("id").toString());
+	} catch (Exception e) {
+	    throw new PowerException("新增商品价格中心产品异常",
+		    ErrorCode.ADD_FAIL.getErrorCode(), e);
+	}
+
+    }    
+
+	/**
+	 * 删除组合商品子商品
+	 * 
+	 * @param productSubDbId
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer delProductSub(Integer productSubDbId) throws PowerException {
+		logger.info(LogUtils.commonFormat("删除组合商品子商品", productSubDbId));
+        try {
+			return productMapper.delProductSub(productSubDbId);
+        } catch (Exception e) {
+        	throw new PowerException("删除组合商品子商品异常",
+        								ErrorCode.QUERY_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 下线商品
+	 * 
+	 * @param productSubDbId
+	 * @throws PowerException
+	 */
+	public void offlineProduct(Integer productId) throws PowerException {
+		logger.info(LogUtils.commonFormat("下线商品", productId));
+        try {
+			productMapper.offlineProduct("product_front_master", productId);
+        	productMapper.offlineProduct("product_front_master_bak", productId);
+        	productMapper.offlineProduct("product_front_101", productId);
+        	productMapper.offlineProduct("product_front_101_bak", productId);
+        	productMapper.offlineProduct("product_front_103", productId);
+        	productMapper.offlineProduct("product_front_103_bak", productId);
+        	productMapper.offlineProduct("product_front_105", productId);
+        	productMapper.offlineProduct("product_front_105_bak", productId);
+        	productMapper.offlineProduct("product_front_106", productId);
+        	productMapper.offlineProduct("product_front_106_bak", productId);
+        	productMapper.offlineProduct("product_front_120", productId);
+        	productMapper.offlineProduct("product_front_120_bak", productId);
+        } catch (Exception e) {
+        	throw new PowerException("下线商品异常",
+        								ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 更新商品
+	 * 
+	 * @param productParam
+	 */
+	public void updateProduct(HashMap<String, Object> productParam) throws PowerException {
+		logger.info(LogUtils.commonFormat("更新商品", productParam));
+        try {
+        	productMapper.updateProduct(productParam);
+        } catch (Exception e) {
+        	throw new PowerException("更新商品异常",
+        								ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+        }
+	}
+	
+	/**
+	 * 更新通用详情
+	 * 
+	 * @param productId
+	 */
+	public void updateComDetail(StringBuilder detail, Integer detailId) throws PowerException {
+		logger.info(LogUtils.commonFormat("更新通用详情", detailId));
+        try {
+        	productMapper.updateComDetail(detail, detailId);
+        } catch (Exception e) {
+        	throw new PowerException("更新通用详情异常",
+        								ErrorCode.UPDATE_FAIL.getErrorCode(), e);
+        }
+	}
+
+
+    /**
+     * 查询商品分类关系映射关系记录
+     * 
+     * @param productId
+     * @return List<Integer>
+     * @throws PowerException
+     * @author zhengyf
+     */
+    public List<Integer> selectProductCategory(Integer productId)
+	    throws PowerException {
+	// 日志
+	logger.info(LogUtils.commonFormat("查询商品分类映射关系记录", productId));
+	try {
+	    // 新增商品分类映射关系记录
+
+	    // 返回主键
+	    return productMapper.selectProductCategory(productId);
+	} catch (Exception e) {
+	    throw new PowerException("新增商品价格中心产品异常",
+		    ErrorCode.ADD_FAIL.getErrorCode(), e);
+	}
+
+    }
+
+    /**
+     * 删除商品分类关系映射关系记录
+     * 
+     * @param Params
+     * @return void
+     * @throws PowerException
+     * @author zhengyf
+     */
+    public void deleteProductCategory(HashMap<String, Object> Params)
+	    throws PowerException {
+	// 日志
+	logger.info(LogUtils.commonFormat("删除商品分类映射关系记录", Params));
+	try {
+	    // 删除商品分类映射关系记录
+	    productMapper.deleteProductCategory(Params);
+	} catch (Exception e) {
+	    throw new PowerException("新增商品价格中心产品异常",
+		    ErrorCode.ADD_FAIL.getErrorCode(), e);
+	}
+
+    }
+    
+    
+    /**
+	 * 主从商品复制
+	 * 
+	 * @param product
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer masterProductCopy(HashMap<String, Object> productCopy)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("主从商品复制", productCopy));
+		try {
+			// 新增商品
+			productMapper.productCopy(productCopy);
+
+			// 返回主键
+			return Integer.valueOf(productCopy.get("productId").toString());
+		} catch (Exception e) {
+			throw new PowerException("主从复制商品价格中心产品异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+	
+	/**
+	 * 跨品类商品复制
+	 * 
+	 * @param product
+	 * @return
+	 * @throws PowerException
+	 */
+	public Integer changeTypeProductCopy(HashMap<String, Object> productCopy)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("跨品类商品复制", productCopy));
+		try {
+			// 主从商品复制
+			productMapper.productCopy(productCopy);
+
+			// 返回主键
+			return Integer.valueOf(productCopy.get("productId").toString());
+		} catch (Exception e) {
+			throw new PowerException("跨品类商品复制产品异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+	
+	//临时
+	/**
+	 * 查询商品信息（临时）
+	 * 
+	 * @param product
+	 * @return
+	 * @throws PowerException
+	 */
+	public HashMap<String,Object> queryProduct(Integer productId)
+			throws PowerException {
+		// 日志
+		logger.info(LogUtils.commonFormat("查询商品信息", productId));
+		try {
+			// 主从商品复制
+			return productMapper.queryProduct(productId);
+
+		} catch (Exception e) {
+			throw new PowerException("跨品类商品复制产品异常",
+					ErrorCode.ADD_FAIL.getErrorCode(), e);
+		}
+	}
+    
+
+}

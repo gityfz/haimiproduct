@@ -1,0 +1,59 @@
+package com.intelligence.business.product.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.intelligence.business.product.dao.IProductDao;
+import com.intelligence.business.product.service.IProductService;
+import com.intelligence.common.exception.PowerException;
+
+@Service
+public class ProductServiceImpl implements IProductService {
+
+    /**
+     * 日志
+     */
+    public final static Logger logger = LoggerFactory
+	    .getLogger(ProductServiceImpl.class);
+
+    /**
+     * 商品DAO曾
+     */
+    @Resource
+    private IProductDao iProductDao;
+
+    public Integer addProduct(HashMap<String, Object> productParam)
+	    throws PowerException {
+	try {
+	    // 获取当前时间
+	    Date currentTime = new Date();
+
+	    // 新增详情
+	    HashMap<String, Object> productDetail = new HashMap<String, Object>();
+	    productDetail.put("detail", productParam.get("detail"));
+	    productDetail.put("addTime", currentTime);
+	    Integer detailId = iProductDao.addDetail(productDetail);
+	    productDetail = null;
+	    productParam.remove("detail");
+
+	    // 新增商品
+	    // 判断是否置顶
+	    if (null != productParam.get("isTop")) {
+		productParam.put("setTime", currentTime);
+	    }
+	    productParam.put("detailId", detailId);
+	    productParam.put("addTime", currentTime);
+	    return iProductDao.addProduct(productParam);
+
+	} catch (PowerException e) {
+	    throw e;
+	}
+    }
+
+}

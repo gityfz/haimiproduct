@@ -1,0 +1,84 @@
+package com.intelligence.business.product.controller;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.intelligence.business.product.service.IProductTypeService;
+import com.intelligence.common.base.BaseController;
+import com.intelligence.common.constant.StringCon;
+import com.intelligence.common.exception.ErrorCode;
+import com.intelligence.common.exception.PowerException;
+import com.intelligence.common.log.LogUtils;
+import com.intelligence.common.utils.NumUtils;
+
+/**
+ * @author Zhengyf
+ * @date 创建时间：2017年2月13日
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+@Controller
+@RequestMapping(value = "/product-type")
+public class ProductTypeController extends BaseController{
+	
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory.getLogger(ProductTypeController.class);
+	
+	/**
+	 * 品类业务层
+	 */
+	@Resource
+	private IProductTypeService iProductTypeService;
+
+	@RequestMapping(value="/add",method=RequestMethod.POST)
+	public void addType(HttpServletRequest request,HttpServletResponse response) throws IOException,PowerException{
+		try {
+			// 获取参数
+			HashMap<String, Object> params = this.getMapParams(request, response);
+			// 记录日志
+			logger.info(LogUtils.commonFormat("新增一条品类接口入参", params, "/product-type/add", "post"));
+			// 校验入参
+			String paramMsg = StringCon.EMPTY_STR.getValue();
+			if(!NumUtils.isNum(params.get("productType"))){
+				//商品品类
+				paramMsg = "productType";
+			} else if(null == params.get("productTypeName")){
+				//品类名称
+				paramMsg = "productTypeName";
+			} else if(!NumUtils.isNum(params.get("productTypeLevel"))){
+				//品类层级 0 根级 1 1级 2 2级 3 3级
+				paramMsg = "productTypeLevel";
+			}
+			
+			if (!StringCon.EMPTY_STR.getValue().equals(paramMsg)) {
+				// 返回结果，参数错误
+				this.sendResult(response, null, false, paramMsg + ErrorCode.PARAMS_FAIL.getErrorMessage(), ErrorCode.PARAMS_FAIL.getErrorCode());
+			} else {
+				// 新增品类
+				Integer productTypeId = iProductTypeService.addProductType(params);
+				// 返回结果
+				this.sendResult(response, productTypeId);				
+			}
+			
+		} catch (PowerException e) {
+			if (logger.isDebugEnabled()) {
+				e.printStackTrace();
+			}
+			this.sendResult(response, null, false, e.getErrorMsg(), e.getErrorCode());
+		}
+	};
+}

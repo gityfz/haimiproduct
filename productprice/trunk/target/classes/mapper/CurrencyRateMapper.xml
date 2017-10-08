@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.intelligence.business.price.persistance.PriceRateMapper">
+ 
+	<!-- 货币汇率实体映射 -->
+	<resultMap id="currencyRate" type="com.intelligence.business.price.entity.CurrencyRate">
+		<!-- 商品用户价格表 -->
+		<!-- 主键ID -->
+		<id column="id" property="currencyRateId" jdbcType="INTEGER" />
+		<!-- 国家ID -->
+		<result column="country_id " property="countryId" jdbcType="INTEGER" />
+		<!-- 价格单位 -->
+		<result column="price_unit" property="priceUnit" jdbcType="VARCHAR" />
+		<!-- 货币标记 -->
+		<result column="currency_flag" property="currencyFlag" jdbcType="VARCHAR" />
+		<!-- 货币汇率 -->
+		<result column="currency_rate" property="currencyRate" jdbcType="DECIMAL" />
+		<!-- 汇率差 -->
+		<result column="uni_bal" property="uniBal" jdbcType="DECIMAL" />
+		<!-- 新增时间 -->
+		<result column="add_time" property="addTime" jdbcType="DATE" />
+		<!-- 更新时间 -->
+		<result column="update_time" property="updateTime" jdbcType="DATE" />
+	</resultMap>
+
+	<!-- 获取货币汇率 -->
+	<select id="queryCurrencyRate" resultMap="currencyRate" parameterType="java.util.HashMap">
+		SELECT
+	  		country_id,
+	  		price_unit,
+	  		currency_flag,
+	  		currency_rate,
+	  		uni_bal,
+	  		add_time,
+	  		update_time
+		FROM 
+			currency_rate
+		WHERE 
+			del_flag = 0
+	</select>
+	
+</mapper>

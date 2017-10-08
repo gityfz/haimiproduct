@@ -1,0 +1,55 @@
+package com.intelligence.business.product.dao.impl;
+
+import java.util.HashMap;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import com.intelligence.business.product.dao.IProductCategoryDao;
+import com.intelligence.business.product.persistance.ProductCategoryMapper;
+import com.intelligence.common.log.LogUtils;
+
+/**
+ * @author 作者 E-mail: bzp
+ * @date 创建时间：2017年1月13日 下午4:57:10
+ * @version 1.0
+ * @parameter
+ * @since
+ * @return
+ */
+@Repository
+public class ProductCategoryDaoImpl implements IProductCategoryDao {
+
+	/**
+	 * 日志
+	 */
+	public final static Logger logger = LoggerFactory
+			.getLogger(ProductCategoryDaoImpl.class);
+
+	@Resource
+	private ProductCategoryMapper productCategoryMapper;
+
+	/**
+	 * 添加商品分类信息
+	 */
+	@Override
+	public Integer addProductCategory(HashMap<String, Object> params) {
+		// TODO Auto-generated method stub
+		try {
+			logger.info(LogUtils.commonFormat("新增一条商品分类信息", params));
+			// 新增商品分类
+			productCategoryMapper.insertProductCategory(params);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			throw e;
+		}
+		// 返回主键
+		return Integer.valueOf(params.get("ProductCategoryId").toString());
+		
+	}
+
+}
